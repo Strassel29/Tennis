@@ -18,7 +18,7 @@
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            min-height: 100vh; /* Repariert: Verhindert die unsichtbare Touch-Blockade */
+            min-height: 100vh;
         }
         .header {
             text-align: center;
@@ -44,6 +44,7 @@
             height: 10px;
             background-color: #ff3333;
             border-radius: 50%;
+            transition: background-color 0.3s;
         }
         .mic-active {
             animation: pulse 1.2s infinite;
@@ -55,7 +56,6 @@
             100% { transform: scale(0.9); opacity: 0.6; }
         }
 
-        /* Modus-Auswahl */
         .mode-selection {
             background: #141f14;
             border: 1px solid #224422;
@@ -90,7 +90,6 @@
             font-weight: bold;
         }
 
-        /* Match-Tabelle */
         .match-board {
             background: #141f14;
             border: 1px solid #224422;
@@ -142,7 +141,6 @@
             margin-bottom: 3px;
         }
 
-        /* Haupt-Punkte-Karten */
         .scoreboard {
             flex-grow: 1;
             display: flex;
@@ -290,46 +288,47 @@
 </div>
 
 <div class="scoreboard">
-    <div class="player-card" id="card-p1" onclick="pointWon(1)">
+    <div class="player-card" id="card-p1" onclick="addPoint(1)">
         <div class="player-info">
-            <span class="player-name lbl-rot">Team Rot</span>
-            <span class="voice-hint">Sage: <b>"Rot"</b></span>
+            <span class="player-name">Team Rot</span>
+            <span class="voice-hint">Sage: "Punkt Rot"</span>
         </div>
         <div class="score-box" id="score-p1">0</div>
     </div>
 
-    <div class="player-card" id="card-p2" onclick="pointWon(2)">
+    <div class="player-card" id="card-p2" onclick="addPoint(2)">
         <div class="player-info">
-            <span class="player-name lbl-gruen">Team Grün</span>
-            <span class="voice-hint">Sage: <b>"Grün"</b></span>
+            <span class="player-name">Team Grün</span>
+            <span class="voice-hint">Sage: "Punkt Grün"</span>
         </div>
         <div class="score-box" id="score-p2">0</div>
     </div>
 </div>
 
-<div class="match-status" id="status-msg">Tippe unten auf "Sprachsteuerung starten"</div>
+<div class="match-status" id="match-status">Spiel läuft</div>
 
 <div class="footer-controls">
-    <button class="btn-mic" id="btn-toggle-mic" onclick="toggleVoice()">Sprachsteuerung starten</button>
-    <button class="btn-reset" onclick="resetGame()">Match Reset</button>
+    <button class="btn-mic" id="btn-mic" onclick="toggleVoice()">Sprachsteuerung starten</button>
+    <button class="btn-reset" onclick="resetMatch()">Reset</button>
 </div>
 
 <script>
-    let p1Points = 0, p2Points = 0;
-    let p1Games = 0, p2Games = 0;
-    let p1Sets = 0, p2Sets = 0;
-    let gameOver = false;
-    let matchStarted = false;
-    let targetSets = 2;
-    
-    const scoreMap = ["0", "15", "30", "40"];
+    // Spielstand-Variablen
+    let targetSets = 2; // Best of 3 standardmäßig
+    let scores =; // Index 0 = P1 (Rot), Index 1 = P2 (Grün)
+    let games =;
+    let sets =;
+    const pointsTable = ["0", "15", "30", "40", "Ad"];
+    let matchOver = false;
 
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    let recognition = null;
-    let isListening = false;
+    // UI Elemente
+    const scoreP1 = document.getElementById('score-p1');
+    const scoreP2 = document.getElementById('score-p2');
+    const gamesP1 = document.getElementById('games-p1');
+    const gamesP2 = document.getElementById('games-p2');
+    const setsP1 = document.getElementById('sets-p1');
+    const setsP2 = document.getElementById('sets-p2');
+    const matchStatus = document.getElementById('match-status');
 
-    if (SpeechRecognition) {
-        recognition = new SpeechRecognition();
-        recognition.lang = 'de-DE';
-        recognition.continuous = true;
-        recognition.interimResults = false;
+    // Modus umschalten
+    function setMatchMode(setsToWin) {
