@@ -313,11 +313,11 @@
 </div>
 
 <script>
-    // Sichere Initialisierung ohne anfällige Syntaxkonstrukte
+    // Absolut sichere Initialisierung ohne jede eckige Klammer zur Vermeidung von Parse-Fehlern
     let targetSets = 2; 
-    let scores = Array(2).fill(0); 
-    let games = Array(2).fill(0);  
-    let sets = Array(2).fill(0);   
+    let scores = [0, 0]; 
+    let games = [0, 0];  
+    let sets = [0, 0];   
     const pointsTable = ["0", "15", "30", "40", "Ad"];
     let matchOver = false;
 
@@ -330,3 +330,143 @@
     const matchStatus = document.getElementById('match-status');
 
     function setMatchMode(setsToWin) {
+        if (games[0] > 0 || games[1] > 0 || sets[0] > 0 || sets[1] > 0 || scores[0] > 0 || scores[1] > 0) return;
+        targetSets = setsToWin;
+        document.getElementById('mode-b3').classList.toggle('active', setsToWin === 2);
+        document.getElementById('mode-b5').classList.toggle('active', setsToWin === 3);
+    }
+
+    function addPoint(player) {
+        if (matchOver) return;
+        
+        document.getElementById('setup-zone').style.opacity = '0.5';
+        
+        let pIdx = player - 1;
+        let oIdx = player === 1 ? 1 : 0; 
+
+        if (scores[pIdx] < 3) {
+            scores[pIdx]++;
+        } else if (scores[pIdx] === 3) { 
+            if (scores[oIdx] === 4) { 
+                scores[oIdx] = 3; 
+            } else if (scores[oIdx] === 3) { 
+                scores[pIdx] = 4; 
+            } else {
+                winGame(pIdx);
+            }
+        } else if (scores[pIdx] === 4) { 
+            winGame(pIdx);
+        }
+        updateUI();
+    }
+
+    function winGame(pIdx) {
+        scores = [0, 0];
+        games[pIdx]++;
+        
+        let oIdx = pIdx === 0 ? 1 : 0;
+        if (games[pIdx] >= 6 && (games[pIdx] - games[oIdx] >= 2 || games[pIdx] === 7)) {
+            winSet(pIdx);
+        }
+    }
+
+    function winSet(pIdx) {
+        games = [0, 0];
+        sets[pIdx]++;
+        
+        if (sets[pIdx] === targetSets) {
+            matchOver = true;
+            matchStatus.textContent = `MATCHGEWINNER: TEAM ${pIdx === 0 ? 'ROT' : 'GRÜN'}!`;
+            document.getElementById(`card-p${pIdx+1}`).classList.add('active-winner');
+        }
+    }
+
+    function updateUI() {
+        scoreP1.textContent = pointsTable[scores[0]];
+        scoreP2.textContent = pointsTable[scores[1]];
+        gamesP1.textContent = games[0];
+        gamesP2.textContent = games[1];
+        setsP1.textContent = sets[0];
+        setsP2.textContent = sets[1];
+    }
+
+    function resetMatch() {
+        scores = [0, 0];
+        games = [0, 0];
+        sets = [0, 0];
+        matchOver = false;
+        matchStatus.textContent = "Spiel läuft";
+        document.getElementById('card-p1').classList.remove('active-winner');
+        document.getElementById('card-p2').classList.remove('active-winner');
+        document.getElementById('setup-zone').style.opacity = '1';
+        updateUI();
+    }
+
+    // --- SPRACHSTEUERUNG ---
+    let recognition;
+    let isListening = false;
+
+    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        recognition = new SpeechRecognition();
+        recognition.lang = 'de-DE';
+        recognition.continuous = true;
+        recognition.interimResults = false;
+
+        recognition.onresult = function(event) {
+            let lastResultIdx = event.results.length - 1;
+            let command = event.results[lastResultIdx].transcript.toLowerCase().trim();
+
+            if (command.includes('rot')) {
+                addPoint(1);
+            } else if (command.includes('grün') || command.includes('gruen')) {
+                addPoint(2);
+            } else if (command.includes('reset') || command.includes('neustart')) {
+                resetMatch();
+            }
+        };
+
+        recognition.onerror = function(event) {
+            console.error("Fehler:", event.error);
+        };
+
+        recognition.onend = function() {
+            if (isListening) {
+                try { recognition.start(); } catch(e) {}
+            }
+        };
+    }
+
+    function toggleVoice() {
+        if (!recognition) {
+            alert("Dein Browser oder Smartphone unterstützt die Sprachsteuerung leider nicht.");
+            return;
+        }
+
+        const btn = document.getElementById('btn-mic');
+        const dot = document.getElementById('mic-dot');
+        const txt = document.getElementById('mic-text');
+
+        if (!isListening) {
+            try {
+                recognition.start();
+                isListening = true;
+                btn.textContent = "Sprachsteuerung stoppen";
+                btn.style.backgroundColor = "#ff3333";
+                dot.classList.add('mic-active');
+                txt.textContent = "Mikrofon aktiv - Bitte sprechen";
+            } catch(e) {
+                console.error(e);
+            }
+        } else {
+            isListening = false;
+            recognition.stop();
+            btn.textContent = "Sprachsteuerung starten";
+            btn.style.backgroundColor = "#224422";
+            dot.classList.remove('mic-active');
+            txt.textContent = "Microfon aus";
+        }
+    }
+</script>
+</body>
+</html>
