@@ -3,11 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Tennis Sprach-Score Pro</title>
+    <title>Tennis Score Pro</title>
     <style>
         * {
             box-sizing: border-box;
             -webkit-tap-highlight-color: transparent;
+            user-select: none;
         }
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
@@ -30,30 +31,6 @@
             margin: 0 0 3px 0;
             text-transform: uppercase;
             letter-spacing: 1px;
-        }
-        .voice-indicator {
-            font-size: 13px;
-            color: #888;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 6px;
-        }
-        .mic-dot {
-            width: 10px;
-            height: 10px;
-            background-color: #ff3333;
-            border-radius: 50%;
-            transition: background-color 0.3s;
-        }
-        .mic-active {
-            animation: pulse 1.2s infinite;
-            background-color: #ccff00;
-        }
-        @keyframes pulse {
-            0% { transform: scale(0.9); opacity: 0.6; }
-            50% { transform: scale(1.1); opacity: 1; }
-            100% { transform: scale(0.9); opacity: 0.6; }
         }
 
         .mode-selection {
@@ -157,7 +134,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            transition: transform 0.2s, box-shadow 0.2s;
+            transition: transform 0.1s, box-shadow 0.1s;
             cursor: pointer;
         }
         #card-p1 {
@@ -167,7 +144,6 @@
         #card-p1.active-winner {
             border-color: #ff4d4d;
             box-shadow: 0 0 20px rgba(255, 77, 77, 0.4);
-            transform: scale(1.01);
         }
         #card-p1 .score-box { color: #ff4d4d; }
 
@@ -178,7 +154,6 @@
         #card-p2.active-winner {
             border-color: #2ed573;
             box-shadow: 0 0 20px rgba(46, 213, 115, 0.4);
-            transform: scale(1.01);
         }
         #card-p2 .score-box { color: #2ed573; }
 
@@ -228,13 +203,11 @@
             border-radius: 12px;
             cursor: pointer;
         }
-        .btn-mic {
-            flex: 2;
-            background-color: #224422;
-            color: white;
-        }
-        .btn-mic.listening {
-            background-color: #ff3333;
+        .btn-undo {
+            flex: 1;
+            background-color: #222522;
+            color: #ffffff;
+            border: 1px solid #444;
         }
         .btn-reset {
             flex: 1;
@@ -247,18 +220,14 @@
 <body>
 
 <div class="header">
-    <h1>Tennis Sprach-Score Pro</h1>
-    <div class="voice-indicator">
-        <span class="mic-dot" id="mic-dot"></span>
-        <span id="mic-text">Mikrofon aus</span>
-    </div>
+    <h1>Tennis Score Pro</h1>
 </div>
 
-<div class="mode-selection" id="setup-zone">
-    <p>Match-Modus wählen (Vor Spielstart):</p>
+<div class="mode-selection">
+    <p>Satz-Modus wählen:</p>
     <div class="btn-group">
-        <button class="btn-mode active" id="mode-b3" onclick="setMatchMode(2)">Best of 3 (2 Sätze)</button>
-        <button class="btn-mode" id="mode-b5" onclick="setMatchMode(3)">Best of 5 (3 Sätze)</button>
+        <button class="btn-mode active" id="mode-b3" onclick="setMatchMode(2)">Best of 3</button>
+        <button class="btn-mode" id="mode-b5" onclick="setMatchMode(3)">Best of 5</button>
     </div>
 </div>
 
@@ -295,7 +264,7 @@
     <div class="player-card" id="card-p1" onclick="addPointManual('rot')">
         <div class="player-info">
             <span class="player-name" style="color:#ff4d4d;">Rot</span>
-            <span class="voice-hint">Befehl: "Rot"</span>
+            <span class="voice-hint">Tippen für Punkt</span>
         </div>
         <div class="score-box" id="score-p1">0</div>
     </div>
@@ -303,21 +272,21 @@
     <div class="player-card" id="card-p2" onclick="addPointManual('gruen')">
         <div class="player-info">
             <span class="player-name" style="color:#2ed573;">Grün</span>
-            <span class="voice-hint">Befehl: "Grün"</span>
+            <span class="voice-hint">Tippen für Punkt</span>
         </div>
         <div class="score-box" id="score-p2">0</div>
     </div>
 </div>
 
-<div class="match-status" id="match-status">Bereit</div>
+<div class="match-status" id="match-status">Bereit für das Match</div>
 
 <div class="footer-controls">
-    <button class="btn-mic" id="btn-mic" onclick="toggleVoice()">Starten</button>
+    <button class="btn-undo" onclick="undoLastPoint()">← Zurück</button>
     <button class="btn-reset" onclick="resetMatch()">Reset</button>
 </div>
 
 <script>
-    // Absolut klammerfreie Zählvariablen
+    // Spielstand-Variablen
     let score_rot = 0;
     let score_gruen = 0;
     let games_rot = 0;
@@ -326,6 +295,9 @@
     let sets_gruen = 0;
     let targetSets = 2;
     let matchEnded = false;
+
+    // Verlaufsspeicher für die Undo-Funktion
+    let historyStack = [];
 
     function getTennisLabel(val) {
         if (val === 0) return "0";
@@ -336,9 +308,34 @@
         return "0";
     }
 
-    let recognition = null;
-    let isListening = false;
+    function setMatchMode(setsToWin) {
+        if (games_rot > 0 || games_gruen > 0 || score_rot > 0 || score_gruen > 0 || historyStack.length > 0) return;
+        targetSets = setsToWin;
+        document.getElementById('mode-b3').classList.toggle('active', setsToWin === 2);
+        document.getElementById('mode-b5').classList.toggle('active', setsToWin === 3);
+    }
 
-    window.addEventListener('DOMContentLoaded', () => {
-        initSpeechRecognition();
-    });
+    // Speichert den aktuellen Zustand vor einer Änderung
+    function saveToHistory() {
+        let snapshot = {
+            s_rot: score_rot,
+            s_gruen: score_gruen,
+            g_rot: games_rot,
+            g_gruen: games_gruen,
+            se_rot: sets_rot,
+            se_gruen: sets_gruen,
+            ended: matchEnded,
+            statusText: document.getElementById('match-status').innerText
+        };
+        historyStack.push(snapshot);
+    }
+
+    function addPointManual(team) {
+        if (matchEnded) return;
+
+        saveToHistory();
+
+        if (team === 'rot') {
+            if (score_rot === 3 && score_gruen === 3) {
+                score_rot = 4;
+            } else if (score_gruen === 4 && score_rot === 3) {
