@@ -313,11 +313,11 @@
 </div>
 
 <script>
-    // Spielstand-Variablen
-    let targetSets = 2; // Best of 3 standardmäßig
-    let scores =; // Index 0 = P1 (Rot), Index 1 = P2 (Grün)
-    let games =;
-    let sets =;
+    // Spielstand-Variablen sauber initialisiert
+    let targetSets = 2; 
+    let scores = [0, 0]; // Index 0 = Rot, Index 1 = Grün
+    let games = [0, 0];
+    let sets = [0, 0];
     const pointsTable = ["0", "15", "30", "40", "Ad"];
     let matchOver = false;
 
@@ -330,5 +330,4 @@
     const setsP2 = document.getElementById('sets-p2');
     const matchStatus = document.getElementById('match-status');
 
-    // Modus umschalten
     function setMatchMode(setsToWin) {
