@@ -1,3 +1,4 @@
+html
 <!DOCTYPE html>
 <html lang="de">
 <head>
@@ -317,11 +318,11 @@
 </div>
 
 <script>
-    // --- Tennis State Variablen (KORRIGIERT) ---
+    // Tennis State Variablen
     let points =; 
     let games =;
     let sets =;
-    let targetSets = 2; 
+    let targetSets = 2; // Default Best of 3 (2 Gewinnsätze)
     let matchEnded = false;
     const scoreLabels = ["0", "15", "30", "40", "Ad"];
 
@@ -336,4 +337,3 @@
 
     function setMatchMode(setsToWin) {
         if(games[0] > 0 || games[1] > 0 || points[0] > 0 || points[1] > 0) return;
-        targetSets = setsToWin;
