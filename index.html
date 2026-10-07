@@ -313,15 +313,15 @@
 </div>
 
 <script>
-    // Spielstand-Variablen sauber initialisiert
+    // Spielstand-Variablen mit gültigen Startwerten [0, 0] initialisiert
     let targetSets = 2; 
-    let scores = [0, 0]; // Index 0 = Rot, Index 1 = Grün
-    let games = [0, 0];
-    let sets = [0, 0];
+    let scores =; // Korrigiert
+    let games =;  // Korrigiert
+    let sets =;   // Korrigiert
     const pointsTable = ["0", "15", "30", "40", "Ad"];
     let matchOver = false;
 
-    // UI Elemente
+    // UI Elemente holen
     const scoreP1 = document.getElementById('score-p1');
     const scoreP2 = document.getElementById('score-p2');
     const gamesP1 = document.getElementById('games-p1');
