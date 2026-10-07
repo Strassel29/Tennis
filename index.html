@@ -317,18 +317,19 @@
 </div>
 
 <script>
-    // --- Sichere, robuste Initialisierung ohne Syntax-Gefahren ---
-    let points = Array.from(Array(2), () => 0); 
-    let games = Array.from(Array(2), () => 0);
-    let sets = Array.from(Array(2), () => 0);
-    let targetSets = 2; 
-    let matchEnded = false;
-    const scoreLabels = Array.from(["0", "15", "30", "40", "Ad"]);
+    // Globaler State über Objekte, um Klammern-Verschluckungen im System komplett zu verhindern
+    let state = {
+        points: { 1: 0, 2: 0 },
+        games: { 1: 0, 2: 0 },
+        sets: { 1: 0, 2: 0 },
+        targetSets: 2,
+        matchEnded: false
+    };
 
-    // Voice Engine Variablen
+    const scoreLabels = { 0: "0", 1: "15", 2: "30", 3: "40", 4: "Ad" };
+
     let recognition;
     let isListening = false;
-    let keepAliveInterval;
 
     window.addEventListener('DOMContentLoaded', () => {
         initSpeechRecognition();
