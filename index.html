@@ -295,7 +295,7 @@
     <div class="player-card" id="card-p1" onclick="addPointManual('rot')">
         <div class="player-info">
             <span class="player-name" style="color:#ff4d4d;">Rot</span>
-            <span class="voice-hint">Befehl: "Rot" / "Punkt Rot"</span>
+            <span class="voice-hint">Befehl: "Rot"</span>
         </div>
         <div class="score-box" id="score-p1">0</div>
     </div>
@@ -303,21 +303,21 @@
     <div class="player-card" id="card-p2" onclick="addPointManual('gruen')">
         <div class="player-info">
             <span class="player-name" style="color:#2ed573;">Grün</span>
-            <span class="voice-hint">Befehl: "Grün" / "Punkt Grün"</span>
+            <span class="voice-hint">Befehl: "Grün"</span>
         </div>
         <div class="score-box" id="score-p2">0</div>
     </div>
 </div>
 
-<div class="match-status" id="match-status">Bereit für das Match</div>
+<div class="match-status" id="match-status">Bereit</div>
 
 <div class="footer-controls">
-    <button class="btn-mic" id="btn-mic" onclick="toggleVoice()">Spracherkennung starten</button>
+    <button class="btn-mic" id="btn-mic" onclick="toggleVoice()">Starten</button>
     <button class="btn-reset" onclick="resetMatch()">Reset</button>
 </div>
 
 <script>
-    // Vollkommen flache Datenstruktur. Keine Array-Klammern, die vom System entfernt werden können.
+    // Absolut klammerfreie Zählvariablen
     let score_rot = 0;
     let score_gruen = 0;
     let games_rot = 0;
@@ -337,3 +337,8 @@
     }
 
     let recognition = null;
+    let isListening = false;
+
+    window.addEventListener('DOMContentLoaded', () => {
+        initSpeechRecognition();
+    });
