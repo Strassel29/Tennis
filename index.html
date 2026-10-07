@@ -1,3 +1,4 @@
+html
 <!DOCTYPE html>
 <html lang="de">
 <head>
@@ -150,6 +151,7 @@
             margin: 10px 0;
         }
         .player-card {
+            background: #141f14;
             border: 2px solid transparent;
             border-radius: 16px;
             padding: 15px 20px;
@@ -232,6 +234,9 @@
             background-color: #224422;
             color: white;
         }
+        .btn-mic.listening {
+            background-color: #ff3333;
+        }
         .btn-reset {
             flex: 1;
             background-color: #331111;
@@ -253,8 +258,8 @@
 <div class="mode-selection" id="setup-zone">
     <p>Match-Modus wählen (Vor Spielstart):</p>
     <div class="btn-group">
-        <button class="btn-mode active" id="mode-b3" onclick="setMatchMode(2)">Best of 3 (2 Gewinnsätze)</button>
-        <button class="btn-mode" id="mode-b5" onclick="setMatchMode(3)">Best of 5 (3 Gewinnsätze)</button>
+        <button class="btn-mode active" id="mode-b3" onclick="setMatchMode(2)">Best of 3 (2 Sätze)</button>
+        <button class="btn-mode" id="mode-b5" onclick="setMatchMode(3)">Best of 5 (3 Sätze)</button>
     </div>
 </div>
 
@@ -290,183 +295,45 @@
 <div class="scoreboard">
     <div class="player-card" id="card-p1" onclick="addPoint(1)">
         <div class="player-info">
-            <span class="player-name">Team Rot</span>
-            <span class="voice-hint">Sage: "Punkt Rot"</span>
+            <span class="player-name" style="color:#ff4d4d;">Rot</span>
+            <span class="voice-hint">Befehl: "Rot" / "Punkt Rot"</span>
         </div>
         <div class="score-box" id="score-p1">0</div>
     </div>
 
     <div class="player-card" id="card-p2" onclick="addPoint(2)">
         <div class="player-info">
-            <span class="player-name">Team Grün</span>
-            <span class="voice-hint">Sage: "Punkt Grün"</span>
+            <span class="player-name" style="color:#2ed573;">Grün</span>
+            <span class="voice-hint">Befehl: "Grün" / "Punkt Grün"</span>
         </div>
         <div class="score-box" id="score-p2">0</div>
     </div>
 </div>
 
-<div class="match-status" id="match-status">Spiel läuft</div>
+<div class="match-status" id="match-status">Bereit für das Match</div>
 
 <div class="footer-controls">
-    <button class="btn-mic" id="btn-mic" onclick="toggleVoice()">Sprachsteuerung starten</button>
+    <button class="btn-mic" id="btn-mic" onclick="toggleVoice()">Spracherkennung starten</button>
     <button class="btn-reset" onclick="resetMatch()">Reset</button>
 </div>
 
 <script>
-    // Absolut sichere Initialisierung ohne jede eckige Klammer zur Vermeidung von Parse-Fehlern
-    let targetSets = 2; 
-    let scores = [0, 0]; 
-    let games = [0, 0];  
-    let sets = [0, 0];   
-    const pointsTable = ["0", "15", "30", "40", "Ad"];
-    let matchOver = false;
+    // Tennis State Variablen
+    let points =; 
+    let games =;
+    let sets =;
+    let targetSets = 2; // Default Best of 3 (2 Gewinnsätze)
+    let matchEnded = false;
+    const scoreLabels = ["0", "15", "30", "40", "Ad"];
 
-    const scoreP1 = document.getElementById('score-p1');
-    const scoreP2 = document.getElementById('score-p2');
-    const gamesP1 = document.getElementById('games-p1');
-    const gamesP2 = document.getElementById('games-p2');
-    const setsP1 = document.getElementById('sets-p1');
-    const setsP2 = document.getElementById('sets-p2');
-    const matchStatus = document.getElementById('match-status');
-
-    function setMatchMode(setsToWin) {
-        if (games[0] > 0 || games[1] > 0 || sets[0] > 0 || sets[1] > 0 || scores[0] > 0 || scores[1] > 0) return;
-        targetSets = setsToWin;
-        document.getElementById('mode-b3').classList.toggle('active', setsToWin === 2);
-        document.getElementById('mode-b5').classList.toggle('active', setsToWin === 3);
-    }
-
-    function addPoint(player) {
-        if (matchOver) return;
-        
-        document.getElementById('setup-zone').style.opacity = '0.5';
-        
-        let pIdx = player - 1;
-        let oIdx = player === 1 ? 1 : 0; 
-
-        if (scores[pIdx] < 3) {
-            scores[pIdx]++;
-        } else if (scores[pIdx] === 3) { 
-            if (scores[oIdx] === 4) { 
-                scores[oIdx] = 3; 
-            } else if (scores[oIdx] === 3) { 
-                scores[pIdx] = 4; 
-            } else {
-                winGame(pIdx);
-            }
-        } else if (scores[pIdx] === 4) { 
-            winGame(pIdx);
-        }
-        updateUI();
-    }
-
-    function winGame(pIdx) {
-        scores = [0, 0];
-        games[pIdx]++;
-        
-        let oIdx = pIdx === 0 ? 1 : 0;
-        if (games[pIdx] >= 6 && (games[pIdx] - games[oIdx] >= 2 || games[pIdx] === 7)) {
-            winSet(pIdx);
-        }
-    }
-
-    function winSet(pIdx) {
-        games = [0, 0];
-        sets[pIdx]++;
-        
-        if (sets[pIdx] === targetSets) {
-            matchOver = true;
-            matchStatus.textContent = `MATCHGEWINNER: TEAM ${pIdx === 0 ? 'ROT' : 'GRÜN'}!`;
-            document.getElementById(`card-p${pIdx+1}`).classList.add('active-winner');
-        }
-    }
-
-    function updateUI() {
-        scoreP1.textContent = pointsTable[scores[0]];
-        scoreP2.textContent = pointsTable[scores[1]];
-        gamesP1.textContent = games[0];
-        gamesP2.textContent = games[1];
-        setsP1.textContent = sets[0];
-        setsP2.textContent = sets[1];
-    }
-
-    function resetMatch() {
-        scores = [0, 0];
-        games = [0, 0];
-        sets = [0, 0];
-        matchOver = false;
-        matchStatus.textContent = "Spiel läuft";
-        document.getElementById('card-p1').classList.remove('active-winner');
-        document.getElementById('card-p2').classList.remove('active-winner');
-        document.getElementById('setup-zone').style.opacity = '1';
-        updateUI();
-    }
-
-    // --- SPRACHSTEUERUNG ---
+    // Voice Engine Variablen
     let recognition;
     let isListening = false;
+    let keepAliveInterval;
 
-    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
-        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-        recognition = new SpeechRecognition();
-        recognition.lang = 'de-DE';
-        recognition.continuous = true;
-        recognition.interimResults = false;
+    window.addEventListener('DOMContentLoaded', () => {
+        initSpeechRecognition();
+    });
 
-        recognition.onresult = function(event) {
-            let lastResultIdx = event.results.length - 1;
-            let command = event.results[lastResultIdx].transcript.toLowerCase().trim();
-
-            if (command.includes('rot')) {
-                addPoint(1);
-            } else if (command.includes('grün') || command.includes('gruen')) {
-                addPoint(2);
-            } else if (command.includes('reset') || command.includes('neustart')) {
-                resetMatch();
-            }
-        };
-
-        recognition.onerror = function(event) {
-            console.error("Fehler:", event.error);
-        };
-
-        recognition.onend = function() {
-            if (isListening) {
-                try { recognition.start(); } catch(e) {}
-            }
-        };
-    }
-
-    function toggleVoice() {
-        if (!recognition) {
-            alert("Dein Browser oder Smartphone unterstützt die Sprachsteuerung leider nicht.");
-            return;
-        }
-
-        const btn = document.getElementById('btn-mic');
-        const dot = document.getElementById('mic-dot');
-        const txt = document.getElementById('mic-text');
-
-        if (!isListening) {
-            try {
-                recognition.start();
-                isListening = true;
-                btn.textContent = "Sprachsteuerung stoppen";
-                btn.style.backgroundColor = "#ff3333";
-                dot.classList.add('mic-active');
-                txt.textContent = "Mikrofon aktiv - Bitte sprechen";
-            } catch(e) {
-                console.error(e);
-            }
-        } else {
-            isListening = false;
-            recognition.stop();
-            btn.textContent = "Sprachsteuerung starten";
-            btn.style.backgroundColor = "#224422";
-            dot.classList.remove('mic-active');
-            txt.textContent = "Microfon aus";
-        }
-    }
-</script>
-</body>
-</html>
+    function setMatchMode(setsToWin) {
+        if(games[0] > 0 || games[1] > 0 || points[0] > 0 || points[1] > 0) return;
