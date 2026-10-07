@@ -1,0 +1,337 @@
+
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Tennis Sprach-Score Pro</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #0b130b;
+            color: #ffffff;
+            margin: 0;
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            height: 100vh;
+            height: -webkit-fill-available;
+            overflow: hidden;
+        }
+        .header {
+            text-align: center;
+            padding: 5px 0;
+        }
+        h1 {
+            color: #ccff00;
+            font-size: 18px;
+            margin: 0 0 3px 0;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .voice-indicator {
+            font-size: 13px;
+            color: #888;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+        .mic-dot {
+            width: 10px;
+            height: 10px;
+            background-color: #ff3333;
+            border-radius: 50%;
+        }
+        .mic-active {
+            animation: pulse 1.2s infinite;
+            background-color: #ccff00;
+        }
+        @keyframes pulse {
+            0% { transform: scale(0.9); opacity: 0.6; }
+            50% { transform: scale(1.1); opacity: 1; }
+            100% { transform: scale(0.9); opacity: 0.6; }
+        }
+
+        /* Modus-Auswahl */
+        .mode-selection {
+            background: #141f14;
+            border: 1px solid #224422;
+            border-radius: 12px;
+            padding: 10px;
+            text-align: center;
+            margin-bottom: 5px;
+        }
+        .mode-selection p {
+            margin: 0 0 8px 0;
+            font-size: 14px;
+            color: #aaa;
+        }
+        .btn-group {
+            display: flex;
+            gap: 10px;
+        }
+        .btn-mode {
+            flex: 1;
+            padding: 8px;
+            font-size: 14px;
+            background: #071107;
+            border: 1px solid #224422;
+            color: white;
+            border-radius: 8px;
+        }
+        .btn-mode.active {
+            background: #ccff00;
+            color: black;
+            border-color: #ccff00;
+            font-weight: bold;
+        }
+
+        /* Match-Tabelle */
+        .match-board {
+            background: #141f14;
+            border: 1px solid #224422;
+            border-radius: 12px;
+            padding: 12px;
+            margin: 5px 0;
+        }
+        .board-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 6px 0;
+        }
+        .board-row:first-child {
+            border-bottom: 1px solid #224422;
+        }
+        .team-lbl {
+            font-size: 16px;
+            font-weight: bold;
+            width: 40%;
+        }
+        .lbl-rot { color: #ff4d4d; }
+        .lbl-gruen { color: #2ed573; }
+        .stats-group {
+            display: flex;
+            gap: 15px;
+            width: 60%;
+            justify-content: flex-end;
+        }
+        .stat-box {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-width: 45px;
+        }
+        .stat-val {
+            font-size: 20px;
+            font-weight: 800;
+            background: #000;
+            padding: 2px 8px;
+            border-radius: 4px;
+            min-width: 35px;
+            text-align: center;
+        }
+        .stat-title {
+            font-size: 10px;
+            color: #888;
+            text-transform: uppercase;
+            margin-bottom: 3px;
+        }
+
+        /* Haupt-Punkte-Karten */
+        .scoreboard {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 12px;
+            margin: 10px 0;
+        }
+        .player-card {
+            border: 2px solid transparent;
+            border-radius: 16px;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        #card-p1 {
+            background: linear-gradient(135deg, #2a0f0f 0%, #120505 100%);
+            border-color: #551a1a;
+        }
+        #card-p1.active-winner {
+            border-color: #ff4d4d;
+            box-shadow: 0 0 20px rgba(255, 77, 77, 0.4);
+            transform: scale(1.01);
+        }
+        #card-p1 .score-box { color: #ff4d4d; }
+
+        #card-p2 {
+            background: linear-gradient(135deg, #0f2a0f 0%, #051205 100%);
+            border-color: #1a551a;
+        }
+        #card-p2.active-winner {
+            border-color: #2ed573;
+            box-shadow: 0 0 20px rgba(46, 213, 115, 0.4);
+            transform: scale(1.01);
+        }
+        #card-p2 .score-box { color: #2ed573; }
+
+        .player-info {
+            display: flex;
+            flex-direction: column;
+        }
+        .player-name {
+            font-size: 20px;
+            font-weight: 800;
+            text-transform: uppercase;
+        }
+        .voice-hint {
+            font-size: 12px;
+            color: #aaa;
+            margin-top: 4px;
+        }
+        .score-box {
+            font-size: 45px;
+            font-weight: 900;
+            font-variant-numeric: tabular-nums;
+            background: #000000;
+            padding: 5px 15px;
+            border-radius: 12px;
+            min-width: 90px;
+            text-align: center;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.8);
+        }
+        .match-status {
+            text-align: center;
+            font-size: 16px;
+            color: #ffcc00;
+            font-weight: bold;
+            min-height: 24px;
+            margin-bottom: 5px;
+        }
+        .footer-controls {
+            display: flex;
+            gap: 10px;
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+        button {
+            padding: 14px;
+            font-size: 15px;
+            font-weight: bold;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+        }
+        .btn-mic {
+            flex: 2;
+            background-color: #224422;
+            color: white;
+        }
+        .btn-reset {
+            flex: 1;
+            background-color: #331111;
+            color: #ff4d4d;
+            border: 1px solid #552222;
+        }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <h1>Tennis Sprach-Score Pro</h1>
+    <div class="voice-indicator">
+        <span class="mic-dot" id="mic-dot"></span>
+        <span id="mic-text">Mikrofon aus</span>
+    </div>
+</div>
+
+<!-- NEU: Modus-Auswahl -->
+<div class="mode-selection" id="setup-zone">
+    <p>Match-Modus wählen (Vor Spielstart):</p>
+    <div class="btn-group">
+        <button class="btn-mode active" id="mode-b3" onclick="setMatchMode(2)">Best of 3 (2 Gewinnsätze)</button>
+        <button class="btn-mode" id="mode-b5" onclick="setMatchMode(3)">Best of 5 (3 Gewinnsätze)</button>
+    </div>
+</div>
+
+<!-- Match-Übersicht -->
+<div class="match-board">
+    <div class="board-row">
+        <div class="team-lbl lbl-rot">TEAM ROT</div>
+        <div class="stats-group">
+            <div class="stat-box">
+                <span class="stat-title">Sätze</span>
+                <span class="stat-val" id="sets-p1">0</span>
+            </div>
+            <div class="stat-box">
+                <span class="stat-title">Spiele</span>
+                <span class="stat-val" id="games-p1">0</span>
+            </div>
+        </div>
+    </div>
+    <div class="board-row">
+        <div class="team-lbl lbl-gruen">TEAM GRÜN</div>
+        <div class="stats-group">
+            <div class="stat-box">
+                <span class="stat-title">Sätze</span>
+                <span class="stat-val" id="sets-p2">0</span>
+            </div>
+            <div class="stat-box">
+                <span class="stat-title">Spiele</span>
+                <span class="stat-val" id="games-p2">0</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Punkte-Karten -->
+<div class="scoreboard">
+    <div class="player-card" id="card-p1" onclick="pointWon(1)">
+        <div class="player-info">
+            <span class="player-name lbl-rot">Team Rot</span>
+            <span class="voice-hint">Sage: <b>"Rot"</b></span>
+        </div>
+        <div class="score-box" id="score-p1">0</div>
+    </div>
+
+    <div class="player-card" id="card-p2" onclick="pointWon(2)">
+        <div class="player-info">
+            <span class="player-name lbl-gruen">Team Grün</span>
+            <span class="voice-hint">Sage: <b>"Grün"</b></span>
+        </div>
+        <div class="score-box" id="score-p2">0</div>
+    </div>
+</div>
+
+<div class="match-status" id="status-msg">Tippe unten auf "Sprachsteuerung starten"</div>
+
+<div class="footer-controls">
+    <button class="btn-mic" id="btn-toggle-mic" onclick="toggleVoice()">Sprachsteuerung starten</button>
+    <button class="btn-reset" onclick="resetGame()">Match Reset</button>
+</div>
+
+<script>
+    let p1Points = 0, p2Points = 0;
+    let p1Games = 0, p2Games = 0;
+    let p1Sets = 0, p2Sets = 0;
+    let gameOver = false;
+    let matchStarted = false;
+    let targetSets = 2; // Standard: Best of 3 (2 Sätze zum Sieg)
+    
+    const scoreMap = ["0", "15", "30", "40"];
+
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    let recognition = null;
+    let isListening = false;
+
+    if (SpeechRecognition) {
+        recognition = new SpeechRecognition();
+        recognition.lang = 'de-DE';
