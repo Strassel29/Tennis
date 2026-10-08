@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tennis Zähler v1.4.0</title>
+    <title>Tennis Zähler v1.4.1</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -41,7 +41,7 @@
             color: black;
         }
 
-        /* NEU: Visueller Sprachsteuerungs-Indikator */
+        /* Sprachsteuerungs-Bedienfeld */
         .voice-card {
             background-color: #1a237e;
             max-width: 500px;
@@ -142,7 +142,7 @@
         <button id="mode-3" class="btn-mode" onclick="setTargetSets(3)">3 Gewinnsätze</button>
     </div>
 
-    <!-- NEU: Sprachsteuerungs-Bedienfeld -->
+    <!-- Sprachsteuerungs-Bedienfeld -->
     <div class="voice-card">
         <strong>🎤 Sprach-Schnittstelle</strong><br>
         <button id="btn-voice-toggle" class="btn-voice" onclick="toggleVoiceSystem()">Mikrofon einschalten</button>
@@ -178,7 +178,7 @@
         <button class="btn-control" onclick="resetMatch()">Reset</button>
     </div>
 
-    <div class="version-tag">Version: v1.4.0 (2-Stufen Sprachsteuerung)</div>
+    <div class="version-tag">Version: v1.4.1 (Try-Catch abgesichert)</div>
 
     <script>
         let p1 = { points: 0, games: 0, sets: 0 };
