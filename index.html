@@ -3,16 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <!-- Cache-Kontrolltitel -->
-    <title>Tennis Zähler v1.4.2</title>
+    <!-- Eindeutige Version zur Cache-Kontrolle -->
+    <title>Tennis Zähler v1.5.0</title>
     <style>
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
             font-family: Arial, sans-serif;
-            /* Erzwingt, dass Touch-Events auf absolut allen Elementen durchgelassen werden */
-            pointer-events: auto !important;
             -webkit-tap-highlight-color: transparent !important;
         }
 
@@ -36,20 +34,6 @@
             color: #f59e0b;
             margin: 15px 0;
             text-transform: uppercase;
-        }
-
-        /* Diagnose-Anzeige */
-        .debug-console {
-            background-color: #7f1d1d;
-            color: #fca5a5;
-            padding: 10px;
-            border-radius: 8px;
-            margin-bottom: 15px;
-            font-family: monospace;
-            font-size: 0.85rem;
-            text-align: left;
-            border: 2px solid #ef4444;
-            display: none;
         }
 
         .card {
@@ -133,7 +117,6 @@
             margin-bottom: 25px;
         }
 
-        /* Optimierte Score-Buttons mit aggressiver Feedback-Farbe */
         .btn-score {
             flex: 1;
             padding: 35px 10px;
@@ -148,7 +131,7 @@
         .btn-rot { background-color: #d32f2f; }
         .btn-gruen { background-color: #388e3c; }
         
-        /* Radikaler Farbwechsel beim Antippen zur visuellen Kontrolle */
+        /* Visueller Druckeffekt */
         .btn-rot:active, .btn-rot:focus { background-color: #f59e0b !important; color: #0f172a !important; }
         .btn-gruen:active, .btn-gruen:focus { background-color: #f59e0b !important; color: #0f172a !important; }
         .btn-mode:active { background-color: #f59e0b !important; color: #0f172a !important; }
@@ -186,19 +169,16 @@
     <div class="container">
         <h1>Scoreboard Pro</h1>
 
-        <!-- Fehler-Log -->
-        <div id="error-log" class="debug-console"></div>
-
-        <!-- Sätze-Auswahl -->
+        <!-- Knöpfe ohne inline onclick-Attribute -->
         <div class="card">
             <div class="title">Match-Modus</div>
             <div class="mode-switch">
-                <button id="mode-2" class="btn-mode active" onclick="setTargetSets(2)" ontouchstart="setTargetSets(2)">2 Gewinnsätze</button>
-                <button id="mode-3" class="btn-mode" onclick="setTargetSets(3)" ontouchstart="setTargetSets(3)">3 Gewinnsätze</button>
+                <button id="mode-2" class="btn-mode active">2 Gewinnsätze</button>
+                <button id="mode-3" class="btn-mode">3 Gewinnsätze</button>
             </div>
         </div>
 
-        <!-- Dashboard -->
+        <!-- Anzeigetafel -->
         <div class="card">
             <div class="grid">
                 <div class="grid-header" style="text-align: left;">Team</div>
@@ -220,27 +200,21 @@
 
         <!-- Haupttasten -->
         <div class="btn-container">
-            <button class="btn-score btn-rot" onclick="pointWonBy(1)" ontouchstart="pointWonBy(1)">+ Team Rot</button>
-            <button class="btn-score btn-gruen" onclick="pointWonBy(2)" ontouchstart="pointWonBy(2)">+ Team Grün</button>
+            <button id="btn-score-rot" class="btn-score btn-rot">+ Team Rot</button>
+            <button id="btn-score-gruen" class="btn-score btn-gruen">+ Team Grün</button>
         </div>
 
-        <!-- Utility-Tasten -->
+        <!-- Systemtasten -->
         <div class="footer-controls">
-            <button class="btn-control btn-undo" onclick="undoLastPoint()" ontouchstart="undoLastPoint()">↩ Undo</button>
-            <button class="btn-control" onclick="resetMatch()" ontouchstart="resetMatch()">Reset</button>
+            <button id="btn-action-undo" class="btn-control btn-undo">↩ Undo</button>
+            <button id="btn-action-reset" class="btn-control">Reset</button>
         </div>
         
-        <div class="version-tag">VERSION: v1.4.2</div>
+        <div class="version-tag">VERSION: v1.5.0</div>
     </div>
 
     <script>
-        window.onerror = function(msg, url, line) {
-            const log = document.getElementById("error-log");
-            log.style.display = "block";
-            log.innerText = "FEHLER: " + msg + "\nZeile: " + line;
-            return false;
-        };
-
+        // Variablen & Grundstruktur
         let p1 = { points: 0, games: 0, sets: 0 };
         let p2 = { points: 0, games: 0, sets: 0 };
         let history = [];
@@ -250,6 +224,23 @@
         
         const pointValues = ["0", "15", "30", "40", "Vorteil"];
 
+        // 1. Programmatische Zuweisung der Event-Listener nach dem Laden
+        document.addEventListener("DOMContentLoaded", function() {
+            
+            document.getElementById("mode-2").addEventListener("click", function() { setTargetSets(2); });
+            document.getElementById("mode-3").addEventListener("click", function() { setTargetSets(3); });
+            
+            document.getElementById("btn-score-rot").addEventListener("click", function() { pointWonBy(1); });
+            document.getElementById("btn-score-gruen").addEventListener("click", function() { pointWonBy(2); });
+            
+            document.getElementById("btn-action-undo").addEventListener("click", undoLastPoint);
+            document.getElementById("btn-action-reset").addEventListener("click", resetMatch);
+
+            // Initiale Anzeige rendern
+            updateDisplay();
+        });
+
+        // 2. Anwendungs-Logik
         function setTargetSets(sets) {
             if (modeLocked) return;
             targetSets = sets;
@@ -261,6 +252,7 @@
         function pointWonBy(player) {
             if (matchOver) return;
 
+            // Auswahl einfrieren
             modeLocked = true;
             document.getElementById("mode-2").style.opacity = "0.3";
             document.getElementById("mode-3").style.opacity = "0.3";
@@ -316,3 +308,6 @@
             
             if (player === 1) {
                 p1.sets++;
+                if (p1.sets === targetSets) { matchOver = true; alert("Match beendet! Team Rot gewinnt!"); }
+            } else {
+                p2.sets++;
