@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tennis Zähler v1.2.2</title>
+    <title>Tennis Zähler v1.2.3</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -15,7 +15,7 @@
         }
         h1 { color: #ffca28; margin-bottom: 20px; }
         
-        /* Modifizierter und vergrößerter Settings-Bereich */
+        /* Settings-Bereich */
         .settings {
             background-color: #1e1e1e;
             max-width: 500px;
@@ -82,7 +82,6 @@
             border: none;
             border-radius: 10px;
             color: white;
-            -webkit-touch-callout: none;
         }
         .btn-rot { background-color: #d32f2f; }
         .btn-gruen { background-color: #388e3c; }
@@ -98,12 +97,12 @@
 
     <h1>Tennis Zähler</h1>
 
-    <!-- Optimierte Auswahl mit dedizierten IDs und Event-Triggern -->
+    <!-- Funktionierende Auswahl der Sätze -->
     <div class="settings">
-        <label onclick="setTargetSets(2)" ontouchstart="setTargetSets(2)">
+        <label onclick="setTargetSets(2)">
             <input type="radio" id="mode-2" name="matchMode" value="2" checked> 2 Gewinnsätze
         </label>
-        <label onclick="setTargetSets(3)" ontouchstart="setTargetSets(3)">
+        <label onclick="setTargetSets(3)">
             <input type="radio" id="mode-3" name="matchMode" value="3"> 3 Gewinnsätze
         </label>
     </div>
@@ -127,17 +126,18 @@
         </div>
     </div>
 
+    <!-- Bereinigte Buttons: Nutzen jetzt ausschließlich onclick für maximale Stabilität -->
     <div class="btn-container">
-        <button class="btn btn-rot" onclick="pointWonBy(1)" ontouchstart="handleTouch(event, 1)">+ Team Rot</button>
-        <button class="btn btn-gruen" onclick="pointWonBy(2)" ontouchstart="handleTouch(event, 2)">+ Team Grün</button>
+        <button class="btn btn-rot" onclick="pointWonBy(1)">+ Team Rot</button>
+        <button class="btn btn-gruen" onclick="pointWonBy(2)">+ Team Grün</button>
     </div>
 
     <div class="footer-controls">
-        <button class="btn-control" onclick="undoLastPoint()" ontouchstart="handleUndoTouch(event)">↩ Undo</button>
+        <button class="btn-control" onclick="undoLastPoint()">↩ Undo</button>
         <button class="btn-control" onclick="resetMatch()">Reset</button>
     </div>
 
-    <div class="version-tag">Version: v1.2.2</div>
+    <div class="version-tag">Version: v1.2.3</div>
 
     <script>
         let p1 = { points: 0, games: 0, sets: 0 };
@@ -148,9 +148,8 @@
         
         const pointValues = ["0", "15", "30", "40", "Vorteil"];
 
-        // Direkte, ausfallsichere Funktion zum Ändern der Gewinnsätze
+        // Funktion zum Ändern der Gewinnsätze (aus v1.2.2 übernommen)
         function setTargetSets(sets) {
-            // Verhindert das Ändern während eines laufenden Matches
             if (history.length > 0 || p1.points > 0 || p2.points > 0 || p1.games > 0 || p2.games > 0) return;
             
             targetSets = sets;
@@ -169,16 +168,6 @@
                 pointWonBy(2);
             }
         });
-
-        function handleTouch(event, player) {
-            event.preventDefault();
-            pointWonBy(player);
-        }
-
-        function handleUndoTouch(event) {
-            event.preventDefault();
-            undoLastPoint();
-        }
 
         function pointWonBy(player) {
             if (matchOver) return;
@@ -253,7 +242,6 @@
             p2 = lastState.p2;
             matchOver = lastState.matchOver;
             
-            // Wenn wir ganz am Anfang sind, Radiobuttons wieder freigeben
             if (history.length === 0) {
                 document.getElementById("mode-2").disabled = false;
                 document.getElementById("mode-3").disabled = false;
@@ -277,3 +265,13 @@
                 history = [];
                 matchOver = false;
                 document.getElementById("mode-2").disabled = false;
+                document.getElementById("mode-3").disabled = false;
+                setTargetSets(2);
+                updateDisplay();
+            }
+        }
+
+        updateDisplay();
+    </script>
+</body>
+</html>
