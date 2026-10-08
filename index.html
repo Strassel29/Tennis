@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tennis Zähler v1.2.0</title>
+    <title>Tennis Zähler v1.2.2</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -15,15 +15,31 @@
         }
         h1 { color: #ffca28; margin-bottom: 20px; }
         
+        /* Modifizierter und vergrößerter Settings-Bereich */
         .settings {
             background-color: #1e1e1e;
             max-width: 500px;
             margin: 0 auto 20px auto;
             padding: 15px;
             border-radius: 8px;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
         }
-        .settings label { margin: 0 15px; font-size: 1.1rem; cursor: pointer; }
-        .settings input { transform: scale(1.2); margin-right: 5px; }
+        .settings label { 
+            font-size: 1.2rem; 
+            cursor: pointer; 
+            padding: 10px 15px;
+            background-color: #2b2b2b;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+        }
+        .settings input { 
+            transform: scale(1.5); 
+            margin-right: 10px; 
+            cursor: pointer;
+        }
 
         .scoreboard {
             background-color: #1e1e1e;
@@ -66,10 +82,11 @@
             border: none;
             border-radius: 10px;
             color: white;
+            -webkit-touch-callout: none;
         }
         .btn-rot { background-color: #d32f2f; }
         .btn-gruen { background-color: #388e3c; }
-        .btn:active { opacity: 0.8; }
+        .btn:active { opacity: 0.7; }
         
         .footer-controls { max-width: 500px; margin: 0 auto; display: flex; justify-content: space-between; }
         .btn-control { background-color: #424242; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; font-size: 1rem; }
@@ -81,9 +98,14 @@
 
     <h1>Tennis Zähler</h1>
 
+    <!-- Optimierte Auswahl mit dedizierten IDs und Event-Triggern -->
     <div class="settings">
-        <label><input type="radio" name="matchMode" value="2" checked onchange="updateRequiredSets()"> 2 Gewinnsätze</label>
-        <label><input type="radio" name="matchMode" value="3" onchange="updateRequiredSets()"> 3 Gewinnsätze</label>
+        <label onclick="setTargetSets(2)" ontouchstart="setTargetSets(2)">
+            <input type="radio" id="mode-2" name="matchMode" value="2" checked> 2 Gewinnsätze
+        </label>
+        <label onclick="setTargetSets(3)" ontouchstart="setTargetSets(3)">
+            <input type="radio" id="mode-3" name="matchMode" value="3"> 3 Gewinnsätze
+        </label>
     </div>
 
     <div class="scoreboard">
@@ -106,16 +128,16 @@
     </div>
 
     <div class="btn-container">
-        <button class="btn btn-rot" onclick="pointWonBy(1)">+ Team Rot</button>
-        <button class="btn btn-gruen" onclick="pointWonBy(2)">+ Team Grün</button>
+        <button class="btn btn-rot" onclick="pointWonBy(1)" ontouchstart="handleTouch(event, 1)">+ Team Rot</button>
+        <button class="btn btn-gruen" onclick="pointWonBy(2)" ontouchstart="handleTouch(event, 2)">+ Team Grün</button>
     </div>
 
     <div class="footer-controls">
-        <button class="btn-control" onclick="undoLastPoint()">↩ Undo</button>
+        <button class="btn-control" onclick="undoLastPoint()" ontouchstart="handleUndoTouch(event)">↩ Undo</button>
         <button class="btn-control" onclick="resetMatch()">Reset</button>
     </div>
 
-    <div class="version-tag">Version: v1.2.0</div>
+    <div class="version-tag">Version: v1.2.2</div>
 
     <script>
         let p1 = { points: 0, games: 0, sets: 0 };
@@ -126,12 +148,17 @@
         
         const pointValues = ["0", "15", "30", "40", "Vorteil"];
 
-        function updateRequiredSets() {
-            const el = document.querySelector('input[name="matchMode"]:checked');
-            if (el) targetSets = parseInt(el.value);
+        // Direkte, ausfallsichere Funktion zum Ändern der Gewinnsätze
+        function setTargetSets(sets) {
+            // Verhindert das Ändern während eines laufenden Matches
+            if (history.length > 0 || p1.points > 0 || p2.points > 0 || p1.games > 0 || p2.games > 0) return;
+            
+            targetSets = sets;
+            document.getElementById("mode-2").checked = (sets === 2);
+            document.getElementById("mode-3").checked = (sets === 3);
         }
 
-        // Physische Tasten (+ für Rot, - für Grün)
+        // Steuerung über Lautstärketasten
         window.addEventListener('keydown', function(event) {
             if (matchOver) return;
             if (event.key === "+" || event.key === "VolumeUp" || event.key === "ArrowUp") {
@@ -143,18 +170,28 @@
             }
         });
 
+        function handleTouch(event, player) {
+            event.preventDefault();
+            pointWonBy(player);
+        }
+
+        function handleUndoTouch(event) {
+            event.preventDefault();
+            undoLastPoint();
+        }
+
         function pointWonBy(player) {
             if (matchOver) return;
 
-            // Historie sichern
             history.push({
                 p1: { points: p1.points, games: p1.games, sets: p1.sets },
                 p2: { points: p2.points, games: p2.games, sets: p2.sets },
                 matchOver: matchOver
             });
 
-            // Radiobuttons sperren
-            document.querySelectorAll('input[name="matchMode"]').forEach(el => el.disabled = true);
+            // Radiobuttons einfrieren, sobald gespielt wird
+            document.getElementById("mode-2").disabled = true;
+            document.getElementById("mode-3").disabled = true;
 
             let server = (player === 1) ? p1 : p2;
             let receiver = (player === 1) ? p2 : p1;
@@ -165,9 +202,9 @@
                 winGame(player);
                 return;
             } else if (server.points === 3 && receiver.points === 3) {
-                server.points = 4; // Vorteil
+                server.points = 4;
             } else if (server.points === 3 && receiver.points === 4) {
-                receiver.points = 3; // Einstand
+                receiver.points = 3;
             } else if (server.points === 4) {
                 winGame(player);
                 return;
@@ -215,6 +252,12 @@
             p1 = lastState.p1;
             p2 = lastState.p2;
             matchOver = lastState.matchOver;
+            
+            // Wenn wir ganz am Anfang sind, Radiobuttons wieder freigeben
+            if (history.length === 0) {
+                document.getElementById("mode-2").disabled = false;
+                document.getElementById("mode-3").disabled = false;
+            }
             updateDisplay();
         }
 
@@ -233,14 +276,4 @@
                 p2 = { points: 0, games: 0, sets: 0 };
                 history = [];
                 matchOver = false;
-                document.querySelectorAll('input[name="matchMode"]').forEach(el => el.disabled = false);
-                updateRequiredSets();
-                updateDisplay();
-            }
-        }
-
-        // Startet die Anzeige direkt beim Laden der Seite
-        updateDisplay();
-    </script>
-</body>
-</html>
+                document.getElementById("mode-2").disabled = false;
