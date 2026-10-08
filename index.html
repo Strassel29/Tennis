@@ -2,142 +2,278 @@
 <html lang="de">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tennis Zähler v1.2.3</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Tennis Score Pro v1.3.0</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            background-color: #121212;
-            color: #e0e0e0;
-            margin: 0;
-            padding: 20px;
-        }
-        h1 { color: #ffca28; margin-bottom: 20px; }
-        
-        /* Settings-Bereich */
-        .settings {
-            background-color: #1e1e1e;
-            max-width: 500px;
-            margin: 0 auto 20px auto;
-            padding: 15px;
-            border-radius: 8px;
-            display: flex;
-            justify-content: center;
-            gap: 20px;
-        }
-        .settings label { 
-            font-size: 1.2rem; 
-            cursor: pointer; 
-            padding: 10px 15px;
-            background-color: #2b2b2b;
-            border-radius: 6px;
-            display: flex;
-            align-items: center;
-        }
-        .settings input { 
-            transform: scale(1.5); 
-            margin-right: 10px; 
-            cursor: pointer;
+        :root {
+            --bg-main: #0f172a;       /* Edles Slate-Dunkelblau */
+            --bg-card: #1e293b;       /* Hellere Karten-Ebene */
+            --accent-yellow: #f59e0b; /* Sattes Tennis-Goldgelb */
+            --team-red: #ef4444;      /* Modernes Signalrot */
+            --team-green: #10b981;    /* Modernes Smaragdgrün */
+            --text-light: #f8fafc;
+            --text-dim: #94a3b8;
         }
 
-        .scoreboard {
-            background-color: #1e1e1e;
-            border-radius: 12px;
-            padding: 20px;
-            max-width: 500px;
-            margin: 0 auto 20px auto;
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
         }
+
+        body {
+            background-color: var(--bg-main);
+            color: var(--text-light);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 20px;
+            align-items: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 550px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: var(--accent-yellow);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 5px;
+        }
+
+        /* Modus-Auswahl */
+        .settings-card {
+            background-color: var(--bg-card);
+            border-radius: 16px;
+            padding: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+            border: 1px solid #334155;
+            text-align: center;
+        }
+
+        .settings-title {
+            font-size: 0.85rem;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-bottom: 12px;
+            font-weight: 700;
+        }
+
+        .mode-switch {
+            display: flex;
+            gap: 12px;
+        }
+
+        .btn-mode {
+            flex: 1;
+            padding: 14px;
+            font-size: 1rem;
+            font-weight: 700;
+            border: 2px solid #334155;
+            border-radius: 10px;
+            background-color: #0f172a;
+            color: var(--text-dim);
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .btn-mode.active {
+            background-color: var(--accent-yellow);
+            color: #0f172a;
+            border-color: var(--accent-yellow);
+            box-shadow: 0 0 15px rgba(245, 158, 11, 0.3);
+        }
+
+        .btn-mode:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            border-style: dashed;
+        }
+
+        /* Anzeigetafel */
+        .scoreboard {
+            background-color: var(--bg-card);
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            border: 1px solid #334155;
+        }
+
         .grid {
             display: grid;
-            grid-template-columns: 2fr 1fr 1fr 1fr;
-            gap: 10px;
+            grid-template-columns: 2.2fr 1fr 1fr 1.2fr;
+            gap: 12px;
             align-items: center;
-            font-size: 1.2rem;
         }
-        .header { font-weight: bold; color: #9e9e9e; border-bottom: 2px solid #333; padding-bottom: 10px; }
-        .player-name { text-align: left; font-weight: bold; }
-        
+
+        .grid-header {
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-bottom: 2px solid #334155;
+            padding-bottom: 10px;
+            text-align: center;
+        }
+
+        .grid-header.team-col { text-align: left; }
+
+        .team-row {
+            font-size: 1.15rem;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+        }
+
         .score-box {
-            background: #0d0d0d;
-            padding: 12px 5px;
-            border-radius: 6px;
-            font-size: 1.4rem;
-            font-weight: bold;
+            background: #0f172a;
+            padding: 14px 5px;
+            border-radius: 10px;
+            font-size: 1.5rem;
+            font-weight: 700;
+            text-align: center;
+            border: 1px solid #233143;
+            transition: color 0.15s ease;
         }
-        .score-box.points { color: #ffca28; }
-        
+
+        .score-box.points {
+            color: var(--accent-yellow);
+            font-size: 1.7rem;
+            border-color: rgba(245, 158, 11, 0.2);
+            background: radial-gradient(circle at center, #131e35 0%, #0f172a 100%);
+        }
+
+        /* Große Action-Buttons */
         .btn-container {
             display: flex;
-            gap: 15px;
-            max-width: 500px;
-            margin: 0 auto 20px auto;
+            gap: 16px;
         }
-        .btn {
+
+        .btn-score {
             flex: 1;
-            padding: 35px 10px;
-            font-size: 1.5rem;
-            font-weight: bold;
+            padding: 28px 10px;
+            font-size: 1.3rem;
+            font-weight: 800;
             cursor: pointer;
             border: none;
-            border-radius: 10px;
+            border-radius: 16px;
             color: white;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+            transition: transform 0.05s, opacity 0.2s;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
         }
-        .btn-rot { background-color: #d32f2f; }
-        .btn-gruen { background-color: #388e3c; }
-        .btn:active { opacity: 0.7; }
-        
-        .footer-controls { max-width: 500px; margin: 0 auto; display: flex; justify-content: space-between; }
-        .btn-control { background-color: #424242; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; font-size: 1rem; }
-        
-        .version-tag { font-size: 0.8rem; color: #555; margin-top: 30px; }
+
+        .btn-rot {
+            background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%);
+            border-bottom: 4px solid #991b1b;
+        }
+
+        .btn-gruen {
+            background: linear-gradient(135deg, #10b981 0%, #047857 100%);
+            border-bottom: 4px solid #065f46;
+        }
+
+        .btn-score:active {
+            transform: translateY(3px);
+            border-bottom-width: 1px;
+        }
+
+        /* Footer Steuerungen */
+        .footer-controls {
+            display: flex;
+            justify-content: space-between;
+            gap: 16px;
+        }
+
+        .btn-control {
+            flex: 1;
+            background-color: #334155;
+            color: var(--text-light);
+            padding: 14px;
+            font-size: 1rem;
+            font-weight: 700;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .btn-control:active { background-color: #475569; }
+        .btn-undo { background-color: #1e293b; border: 1px solid #334155; color: var(--text-dim); }
+        .btn-undo:active { color: var(--text-light); }
+
+        .version-tag {
+            font-size: 0.75rem;
+            color: #475569;
+            text-align: center;
+            margin-top: 10px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
     </style>
 </head>
 <body>
 
-    <h1>Tennis Zähler</h1>
+    <div class="container">
+        <h1>Scoreboard Pro</h1>
 
-    <!-- Funktionierende Auswahl der Sätze -->
-    <div class="settings">
-        <label onclick="setTargetSets(2)">
-            <input type="radio" id="mode-2" name="matchMode" value="2" checked> 2 Gewinnsätze
-        </label>
-        <label onclick="setTargetSets(3)">
-            <input type="radio" id="mode-3" name="matchMode" value="3"> 3 Gewinnsätze
-        </label>
-    </div>
-
-    <div class="scoreboard">
-        <div class="grid">
-            <div class="header" style="text-align: left;">Team</div>
-            <div class="header">Sätze</div>
-            <div class="header">Spiele</div>
-            <div class="header">Punkt</div>
-
-            <div class="player-name" style="color: #ff5252;">Team Rot (+)</div>
-            <div id="p1-sets" class="score-box">0</div>
-            <div id="p1-games" class="score-box">0</div>
-            <div id="p1-points" class="score-box points">0</div>
-
-            <div class="player-name" style="color: #69f0ae;">Team Grün (-)</div>
-            <div id="p2-sets" class="score-box">0</div>
-            <div id="p2-games" class="score-box">0</div>
-            <div id="p2-points" class="score-box points">0</div>
+        <!-- Neue, elegante Modus-Knöpfe -->
+        <div class="settings-card">
+            <div class="settings-title">Match-Modus Festlegen</div>
+            <div class="mode-switch">
+                <button id="mode-2" class="btn-mode active" onclick="setTargetSets(2)">2 Gewinnsätze</button>
+                <button id="mode-3" class="btn-mode" onclick="setTargetSets(3)">3 Gewinnsätze</button>
+            </div>
         </div>
-    </div>
 
-    <!-- Bereinigte Buttons: Nutzen jetzt ausschließlich onclick für maximale Stabilität -->
-    <div class="btn-container">
-        <button class="btn btn-rot" onclick="pointWonBy(1)">+ Team Rot</button>
-        <button class="btn btn-gruen" onclick="pointWonBy(2)">+ Team Grün</button>
-    </div>
+        <!-- Designer Anzeigetafel -->
+        <div class="scoreboard">
+            <div class="grid">
+                <div class="grid-header team-col">Team</div>
+                <div class="grid-header">Sätze</div>
+                <div class="grid-header">Spiele</div>
+                <div class="grid-header">Punkt</div>
 
-    <div class="footer-controls">
-        <button class="btn-control" onclick="undoLastPoint()">↩ Undo</button>
-        <button class="btn-control" onclick="resetMatch()">Reset</button>
-    </div>
+                <!-- Reihe Team Rot -->
+                <div class="team-row" style="color: var(--team-red);">Team Rot</div>
+                <div id="p1-sets" class="score-box">0</div>
+                <div id="p1-games" class="score-box">0</div>
+                <div id="p1-points" class="score-box points">0</div>
 
-    <div class="version-tag">Version: v1.2.3</div>
+                <!-- Reihe Team Grün -->
+                <div class="team-row" style="color: var(--team-green);">Team Grün</div>
+                <div id="p2-sets" class="score-box">0</div>
+                <div id="p2-games" class="score-box">0</div>
+                <div id="p2-points" class="score-box points">0</div>
+            </div>
+        </div>
+
+        <!-- Haupttasten zum Zählen -->
+        <div class="btn-container">
+            <button class="btn-score btn-rot" onclick="pointWonBy(1)">+ Team Rot</button>
+            <button class="btn-score btn-gruen" onclick="pointWonBy(2)">+ Team Grün</button>
+        </div>
+
+        <!-- Kontrollknöpfe -->
+        <div class="footer-controls">
+            <button class="btn-control btn-undo" onclick="undoLastPoint()">↩ Rückgängig (Undo)</button>
+            <button class="btn-control" onclick="resetMatch()">Match Reset</button>
+        </div>
+        
+        <div class="version-tag">SOFTWARE VERSION: v1.3.0</div>
+    </div>
 
     <script>
         let p1 = { points: 0, games: 0, sets: 0 };
@@ -148,16 +284,22 @@
         
         const pointValues = ["0", "15", "30", "40", "Vorteil"];
 
-        // Funktion zum Ändern der Gewinnsätze (aus v1.2.2 übernommen)
         function setTargetSets(sets) {
+            // Blockieren, falls das Spiel schon begonnen hat
             if (history.length > 0 || p1.points > 0 || p2.points > 0 || p1.games > 0 || p2.games > 0) return;
             
             targetSets = sets;
-            document.getElementById("mode-2").checked = (sets === 2);
-            document.getElementById("mode-3").checked = (sets === 3);
+            
+            if (sets === 2) {
+                document.getElementById("mode-2").classList.add("active");
+                document.getElementById("mode-3").classList.remove("active");
+            } else {
+                document.getElementById("mode-2").classList.remove("active");
+                document.getElementById("mode-3").classList.add("active");
+            }
         }
 
-        // Steuerung über Lautstärketasten
+        // Steuerung über Hardware-Lautstärketasten (+ / -)
         window.addEventListener('keydown', function(event) {
             if (matchOver) return;
             if (event.key === "+" || event.key === "VolumeUp" || event.key === "ArrowUp") {
@@ -166,112 +308,3 @@
             } else if (event.key === "-" || event.key === "VolumeDown" || event.key === "ArrowDown") {
                 event.preventDefault();
                 pointWonBy(2);
-            }
-        });
-
-        function pointWonBy(player) {
-            if (matchOver) return;
-
-            history.push({
-                p1: { points: p1.points, games: p1.games, sets: p1.sets },
-                p2: { points: p2.points, games: p2.games, sets: p2.sets },
-                matchOver: matchOver
-            });
-
-            // Radiobuttons einfrieren, sobald gespielt wird
-            document.getElementById("mode-2").disabled = true;
-            document.getElementById("mode-3").disabled = true;
-
-            let server = (player === 1) ? p1 : p2;
-            let receiver = (player === 1) ? p2 : p1;
-
-            if (server.points < 3) {
-                server.points++;
-            } else if (server.points === 3 && receiver.points < 3) {
-                winGame(player);
-                return;
-            } else if (server.points === 3 && receiver.points === 3) {
-                server.points = 4;
-            } else if (server.points === 3 && receiver.points === 4) {
-                receiver.points = 3;
-            } else if (server.points === 4) {
-                winGame(player);
-                return;
-            }
-            updateDisplay();
-        }
-
-        function winGame(player) {
-            p1.points = 0;
-            p2.points = 0;
-
-            if (player === 1) {
-                p1.games++;
-                if (p1.games >= 6 && (p1.games - p2.games) >= 2) {
-                    winSet(1);
-                    return;
-                }
-            } else {
-                p2.games++;
-                if (p2.games >= 6 && (p2.games - p1.games) >= 2) {
-                    winSet(2);
-                    return;
-                }
-            }
-            updateDisplay();
-        }
-
-        function winSet(player) {
-            p1.games = 0;
-            p2.games = 0;
-            
-            if (player === 1) {
-                p1.sets++;
-                if (p1.sets === targetSets) { matchOver = true; alert("Match beendet! Team Rot gewinnt!"); }
-            } else {
-                p2.sets++;
-                if (p2.sets === targetSets) { matchOver = true; alert("Match beendet! Team Grün gewinnt!"); }
-            }
-            updateDisplay();
-        }
-
-        function undoLastPoint() {
-            if (history.length === 0) return;
-            const lastState = history.pop();
-            p1 = lastState.p1;
-            p2 = lastState.p2;
-            matchOver = lastState.matchOver;
-            
-            if (history.length === 0) {
-                document.getElementById("mode-2").disabled = false;
-                document.getElementById("mode-3").disabled = false;
-            }
-            updateDisplay();
-        }
-
-        function updateDisplay() {
-            document.getElementById("p1-points").innerText = pointValues[p1.points] || "0";
-            document.getElementById("p2-points").innerText = pointValues[p2.points] || "0";
-            document.getElementById("p1-games").innerText = p1.games;
-            document.getElementById("p2-games").innerText = p2.games;
-            document.getElementById("p1-sets").innerText = p1.sets;
-            document.getElementById("p2-sets").innerText = p2.sets;
-        }
-
-        function resetMatch() {
-            if (confirm("Match zurücksetzen?")) {
-                p1 = { points: 0, games: 0, sets: 0 };
-                p2 = { points: 0, games: 0, sets: 0 };
-                history = [];
-                matchOver = false;
-                document.getElementById("mode-2").disabled = false;
-                document.getElementById("mode-3").disabled = false;
-                setTargetSets(2);
-                updateDisplay();
-            }
-        }
-
-        updateDisplay();
-    </script>
-</body>
-</html>
