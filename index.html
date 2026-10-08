@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tennis Zähler v2.0.0</title>
+    <title>Tennis Zähler v2.1.0</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -131,7 +131,7 @@
         <button class="btn-control" onclick="resetMatch()">Reset</button>
     </div>
 
-    <div class="version-tag">Version: v2.0.0 (Bereinigt)</div>
+    <div class="version-tag">Version: v2.1.0 (Mit passiver API)</div>
 
     <script>
         let p1 = { points: 0, games: 0, sets: 0 };
@@ -260,6 +260,15 @@
                 updateDisplay();
             }
         }
+
+        // --- DIE PASSIVE API-SCHNITTSTELLE ---
+        // Steht bereit, führt aber von alleine keine Hintergrundprozesse aus.
+        window.TennisAPI = {
+            punktRot: function() { pointWonBy(1); },
+            punktGruen: function() { pointWonBy(2); },
+            undo: function() { undoLastPoint(); },
+            reset: function() { resetMatch(); }
+        };
 
         updateDisplay();
     </script>
