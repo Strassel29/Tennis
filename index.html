@@ -2,266 +2,183 @@
 <html lang="de">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <!-- Eindeutige Version zur Cache-Kontrolle -->
-    <title>Tennis Zähler v1.5.0</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tennis Zähler v1.2.5</title>
     <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: Arial, sans-serif;
-            -webkit-tap-highlight-color: transparent !important;
-        }
-
         body {
-            background-color: #0f172a;
-            color: #f8fafc;
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #121212;
+            color: #e0e0e0;
+            margin: 0;
             padding: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
         }
-
-        .container {
-            width: 100%;
-            max-width: 450px;
-        }
-
-        h1 {
-            text-align: center;
-            font-size: 1.8rem;
-            color: #f59e0b;
-            margin: 15px 0;
-            text-transform: uppercase;
-        }
-
-        .card {
-            background-color: #1e293b;
-            border-radius: 12px;
+        h1 { color: #ffca28; margin-bottom: 20px; }
+        
+        /* Gewinnsatz-Knöpfe aus v1.2.3 modifiziert */
+        .settings {
+            background-color: #1e1e1e;
+            max-width: 500px;
+            margin: 0 auto 20px auto;
             padding: 15px;
-            margin-bottom: 25px;
-            border: 1px solid #334155;
-            text-align: center;
-        }
-
-        .title {
-            font-size: 0.85rem;
-            color: #94a3b8;
-            text-transform: uppercase;
-            margin-bottom: 10px;
-            font-weight: bold;
-        }
-
-        .mode-switch {
+            border-radius: 8px;
             display: flex;
-            gap: 10px;
+            justify-content: center;
+            gap: 15px;
         }
-
         .btn-mode {
             flex: 1;
-            padding: 14px;
+            padding: 12px;
             font-size: 1rem;
             font-weight: bold;
-            border: 2px solid #334155;
-            border-radius: 8px;
-            background-color: #0f172a;
-            color: #94a3b8;
+            border: none;
+            border-radius: 6px;
+            background-color: #424242;
+            color: white;
             cursor: pointer;
         }
-
         .btn-mode.active {
-            background-color: #f59e0b;
-            color: #0f172a;
-            border-color: #f59e0b;
+            background-color: #ffca28;
+            color: black;
         }
 
+        .scoreboard {
+            background-color: #1e1e1e;
+            border-radius: 12px;
+            padding: 20px;
+            max-width: 500px;
+            margin: 0 auto 20px auto;
+        }
         .grid {
             display: grid;
             grid-template-columns: 2fr 1fr 1fr 1fr;
-            gap: 8px;
+            gap: 10px;
             align-items: center;
+            font-size: 1.2rem;
         }
-
-        .grid-header {
-            font-size: 0.8rem;
-            color: #94a3b8;
-            text-transform: uppercase;
-            border-bottom: 1px solid #334155;
-            padding-bottom: 5px;
-        }
-
-        .team-name {
-            font-size: 1.1rem;
-            font-weight: bold;
-            text-align: left;
-        }
-
+        .header { font-weight: bold; color: #9e9e9e; border-bottom: 2px solid #333; padding-bottom: 10px; }
+        .player-name { text-align: left; font-weight: bold; }
+        
         .score-box {
-            background-color: #0f172a;
-            padding: 10px 2px;
+            background: #0d0d0d;
+            padding: 12px 5px;
             border-radius: 6px;
-            font-size: 1.3rem;
+            font-size: 1.4rem;
             font-weight: bold;
-            border: 1px solid #334155;
         }
-
-        .score-box.points {
-            color: #f59e0b;
-            border-color: #f59e0b;
-        }
-
+        .score-box.points { color: #ffca28; }
+        
         .btn-container {
             display: flex;
             gap: 15px;
-            margin-bottom: 25px;
+            max-width: 500px;
+            margin: 0 auto 20px auto;
         }
-
-        .btn-score {
+        .btn {
             flex: 1;
             padding: 35px 10px;
-            font-size: 1.3rem;
+            font-size: 1.5rem;
             font-weight: bold;
             cursor: pointer;
             border: none;
-            border-radius: 12px;
+            border-radius: 10px;
             color: white;
         }
-
         .btn-rot { background-color: #d32f2f; }
         .btn-gruen { background-color: #388e3c; }
+        .btn:active { opacity: 0.8; }
         
-        /* Visueller Druckeffekt */
-        .btn-rot:active, .btn-rot:focus { background-color: #f59e0b !important; color: #0f172a !important; }
-        .btn-gruen:active, .btn-gruen:focus { background-color: #f59e0b !important; color: #0f172a !important; }
-        .btn-mode:active { background-color: #f59e0b !important; color: #0f172a !important; }
-
-        .footer-controls {
-            display: flex;
-            justify-content: space-between;
-            gap: 15px;
-        }
-
-        .btn-control {
-            flex: 1;
-            background-color: #334155;
-            color: white;
-            padding: 12px;
-            font-size: 0.95rem;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: bold;
-        }
-        .btn-undo { background-color: #1e293b; border: 1px solid #334155; }
-        .btn-control:active { background-color: #f59e0b !important; color: #0f172a !important; }
-
-        .version-tag {
-            font-size: 0.75rem;
-            color: #475569;
-            text-align: center;
-            margin-top: 25px;
-        }
+        .footer-controls { max-width: 500px; margin: 0 auto; display: flex; justify-content: space-between; }
+        .btn-control { background-color: #424242; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; font-size: 1rem; }
+        
+        .version-tag { font-size: 0.8rem; color: #555; margin-top: 30px; }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <h1>Scoreboard Pro</h1>
+    <h1>Tennis Zähler</h1>
 
-        <!-- Knöpfe ohne inline onclick-Attribute -->
-        <div class="card">
-            <div class="title">Match-Modus</div>
-            <div class="mode-switch">
-                <button id="mode-2" class="btn-mode active">2 Gewinnsätze</button>
-                <button id="mode-3" class="btn-mode">3 Gewinnsätze</button>
-            </div>
-        </div>
-
-        <!-- Anzeigetafel -->
-        <div class="card">
-            <div class="grid">
-                <div class="grid-header" style="text-align: left;">Team</div>
-                <div class="grid-header">Sätze</div>
-                <div class="grid-header">Spiele</div>
-                <div class="grid-header">Punkt</div>
-
-                <div class="team-name" style="color: #ef4444;">Team Rot</div>
-                <div id="p1-sets" class="score-box">0</div>
-                <div id="p1-games" class="score-box">0</div>
-                <div id="p1-points" class="score-box points">0</div>
-
-                <div class="team-name" style="color: #10b981;">Team Grün</div>
-                <div id="p2-sets" class="score-box">0</div>
-                <div id="p2-games" class="score-box">0</div>
-                <div id="p2-points" class="score-box points">0</div>
-            </div>
-        </div>
-
-        <!-- Haupttasten -->
-        <div class="btn-container">
-            <button id="btn-score-rot" class="btn-score btn-rot">+ Team Rot</button>
-            <button id="btn-score-gruen" class="btn-score btn-gruen">+ Team Grün</button>
-        </div>
-
-        <!-- Systemtasten -->
-        <div class="footer-controls">
-            <button id="btn-action-undo" class="btn-control btn-undo">↩ Undo</button>
-            <button id="btn-action-reset" class="btn-control">Reset</button>
-        </div>
-        
-        <div class="version-tag">VERSION: v1.5.0</div>
+    <!-- Einfache, funktionierende Knöpfe statt blockierender Radio-Buttons -->
+    <div class="settings">
+        <button id="mode-2" class="btn-mode active" onclick="setTargetSets(2)">2 Gewinnsätze</button>
+        <button id="mode-3" class="btn-mode" onclick="setTargetSets(3)">3 Gewinnsätze</button>
     </div>
 
+    <div class="scoreboard">
+        <div class="grid">
+            <div class="header" style="text-align: left;">Team</div>
+            <div class="header">Sätze</div>
+            <div class="header">Spiele</div>
+            <div class="header">Punkt</div>
+
+            <div class="player-name" style="color: #ff5252;">Team Rot (+)</div>
+            <div id="p1-sets" class="score-box">0</div>
+            <div id="p1-games" class="score-box">0</div>
+            <div id="p1-points" class="score-box points">0</div>
+
+            <div class="player-name" style="color: #69f0ae;">Team Grün (-)</div>
+            <div id="p2-sets" class="score-box">0</div>
+            <div id="p2-games" class="score-box">0</div>
+            <div id="p2-points" class="score-box points">0</div>
+        </div>
+    </div>
+
+    <!-- Die originalen, funktionierenden Buttons aus v1.2.3 -->
+    <div class="btn-container">
+        <button class="btn btn-rot" onclick="pointWonBy(1)">+ Team Rot</button>
+        <button class="btn btn-gruen" onclick="pointWonBy(2)">+ Team Grün</button>
+    </div>
+
+    <div class="footer-controls">
+        <button class="btn-control" onclick="undoLastPoint()">↩ Undo</button>
+        <button class="btn-control" onclick="resetMatch()">Reset</button>
+    </div>
+
+    <div class="version-tag">Version: v1.2.5</div>
+
     <script>
-        // Variablen & Grundstruktur
         let p1 = { points: 0, games: 0, sets: 0 };
         let p2 = { points: 0, games: 0, sets: 0 };
         let history = [];
         let targetSets = 2;
         let matchOver = false;
-        let modeLocked = false;
         
         const pointValues = ["0", "15", "30", "40", "Vorteil"];
 
-        // 1. Programmatische Zuweisung der Event-Listener nach dem Laden
-        document.addEventListener("DOMContentLoaded", function() {
-            
-            document.getElementById("mode-2").addEventListener("click", function() { setTargetSets(2); });
-            document.getElementById("mode-3").addEventListener("click", function() { setTargetSets(3); });
-            
-            document.getElementById("btn-score-rot").addEventListener("click", function() { pointWonBy(1); });
-            document.getElementById("btn-score-gruen").addEventListener("click", function() { pointWonBy(2); });
-            
-            document.getElementById("btn-action-undo").addEventListener("click", undoLastPoint);
-            document.getElementById("btn-action-reset").addEventListener("click", resetMatch);
-
-            // Initiale Anzeige rendern
-            updateDisplay();
-        });
-
-        // 2. Anwendungs-Logik
+        // Neue, unkomplizierte Auswahl-Logik ohne Radio-Buttons
         function setTargetSets(sets) {
-            if (modeLocked) return;
+            if (history.length > 0 || p1.points > 0 || p2.points > 0 || p1.games > 0 || p2.games > 0) return;
+            
             targetSets = sets;
             
             document.getElementById("mode-2").className = (sets === 2) ? "btn-mode active" : "btn-mode";
             document.getElementById("mode-3").className = (sets === 3) ? "btn-mode active" : "btn-mode";
         }
 
+        // Steuerung über Lautstärketasten (v1.2.3)
+        window.addEventListener('keydown', function(event) {
+            if (matchOver) return;
+            if (event.key === "+" || event.key === "VolumeUp" || event.key === "ArrowUp") {
+                event.preventDefault();
+                pointWonBy(1);
+            } else if (event.key === "-" || event.key === "VolumeDown" || event.key === "ArrowDown") {
+                event.preventDefault();
+                pointWonBy(2);
+            }
+        });
+
         function pointWonBy(player) {
             if (matchOver) return;
-
-            // Auswahl einfrieren
-            modeLocked = true;
-            document.getElementById("mode-2").style.opacity = "0.3";
-            document.getElementById("mode-3").style.opacity = "0.3";
 
             history.push({
                 p1: { points: p1.points, games: p1.games, sets: p1.sets },
                 p2: { points: p2.points, games: p2.games, sets: p2.sets },
-                modeLocked: modeLocked
+                matchOver: matchOver
             });
+
+            // Knöpfe einfrieren, sobald gespielt wird
+            document.getElementById("mode-2").disabled = true;
+            document.getElementById("mode-3").disabled = true;
 
             let server = (player === 1) ? p1 : p2;
             let receiver = (player === 1) ? p2 : p1;
@@ -311,3 +228,48 @@
                 if (p1.sets === targetSets) { matchOver = true; alert("Match beendet! Team Rot gewinnt!"); }
             } else {
                 p2.sets++;
+                if (p2.sets === targetSets) { matchOver = true; alert("Match beendet! Team Grün gewinnt!"); }
+            }
+            updateDisplay();
+        }
+
+        function undoLastPoint() {
+            if (history.length === 0) return;
+            const lastState = history.pop();
+            p1 = lastState.p1;
+            p2 = lastState.p2;
+            matchOver = lastState.matchOver;
+            
+            if (history.length === 0) {
+                document.getElementById("mode-2").disabled = false;
+                document.getElementById("mode-3").disabled = false;
+            }
+            updateDisplay();
+        }
+
+        function updateDisplay() {
+            document.getElementById("p1-points").innerText = pointValues[p1.points] || "0";
+            document.getElementById("p2-points").innerText = pointValues[p2.points] || "0";
+            document.getElementById("p1-games").innerText = p1.games;
+            document.getElementById("p2-games").innerText = p2.games;
+            document.getElementById("p1-sets").innerText = p1.sets;
+            document.getElementById("p2-sets").innerText = p2.sets;
+        }
+
+        function resetMatch() {
+            if (confirm("Match zurücksetzen?")) {
+                p1 = { points: 0, games: 0, sets: 0 };
+                p2 = { points: 0, games: 0, sets: 0 };
+                history = [];
+                matchOver = false;
+                document.getElementById("mode-2").disabled = false;
+                document.getElementById("mode-3").disabled = false;
+                setTargetSets(2);
+                updateDisplay();
+            }
+        }
+
+        updateDisplay();
+    </script>
+</body>
+</html>
