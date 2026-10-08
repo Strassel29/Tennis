@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Tennis Zähler (Fehlertolerant)</title>
+    <title>Tennis Zähler (Repariert und Bereinigt)</title>
     <style>
         * {
             box-sizing: border-box;
@@ -195,7 +195,7 @@
         <div class="voice-panel">
             <strong>🎤 Intelligente Sprachsteuerung</strong><br>
             <button id="btn-voice" class="btn-voice" onclick="toggleVoiceRecognition()">Spracherkennung starten</button>
-            <div id="voice-status">Inaktiv (Erkennt auch "Brot", "Boot" für Rot)</div>
+            <div id="voice-status">Inaktiv (Befehle: "Rot", "Grün", "Brot")</div>
         </div>
 
         <div class="scoreboard">
@@ -238,19 +238,18 @@
         let history = [];
         let targetSets = 2;
         let matchOver = false;
-        let wakeLock = null;
         let isListening = false;
         let recognition = null;
         
         const pointValues = ["0", "15", "30", "40", "Vorteil"];
 
-        // Wort-Listen für fehlerverzeihende Erkennung
         const keywordsRot = ["rot", "brot", "boot", "kot", "not", "rod", "tod", "dot", "root", "road"];
         const keywordsGruen = ["grün", "gruen", "früh", "brüh", "kien", "gryn", "dünn", "grien", "queen"];
         const keywordsUndo = ["zurück", "zuruck", "rückgängig", "undo", "fehler", "stop", "nein"];
 
         function updateRequiredSets() {
-            targetSets = parseInt(document.querySelector('input[name="matchMode"]:checked').value);
+            const el = document.querySelector('input[name="matchMode"]:checked');
+            if(el) targetSets = parseInt(el.value);
         }
 
         window.addEventListener('keydown', function(event) {
@@ -275,11 +274,10 @@
             recognition.onresult = function(event) {
                 const resultIndex = event.resultIndex;
                 const text = event.results[resultIndex].transcript.toLowerCase().trim();
-                document.getElementById("voice-status").innerText = `Gehört: "${text}"`;
+                document.getElementById("voice-status").innerText = `Geheard: "${text}"`;
 
                 if (matchOver) return;
 
-                // Überprüfung mit den toleranten Wortlisten
                 const gehörtRot = keywordsRot.some(word => text.includes(word));
                 const gehörtGruen = keywordsGruen.some(word => text.includes(word));
                 const gehörtUndo = keywordsUndo.some(word => text.includes(word));
@@ -290,3 +288,7 @@
                     pointWonBy(2);
                 } else if (gehörtUndo) {
                     undoLastPoint();
+                }
+            };
+
+            recognition.onerror = function() {
