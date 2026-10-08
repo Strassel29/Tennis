@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tennis Zähler v1.3.0</title>
+    <title>Tennis Zähler v1.3.1</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -131,7 +131,7 @@
         <button class="btn-control" onclick="resetMatch()">Reset</button>
     </div>
 
-    <div class="version-tag">Version: v1.3.0 (mit API-Schnittstelle)</div>
+    <div class="version-tag">Version: v1.3.1 (Schnittstelle repariert)</div>
 
     <script>
         let p1 = { points: 0, games: 0, sets: 0 };
@@ -141,34 +141,6 @@
         let matchOver = false;
         
         const pointValues = ["0", "15", "30", "40", "Vorteil"];
-
-        // --- DIE NEUE SPRACH-SCHNITTSTELLE (API) ---
-        // Jedes externe System kann ab jetzt diese globalen Funktionen aufrufen.
-        window.TennisAPI = {
-            punktFuerRot: function() {
-                pointWonBy(1);
-                return "Punkt für Team Rot registriert";
-            },
-            punktFuerGruen: function() {
-                pointWonBy(2);
-                return "Punkt für Team Grün registriert";
-            },
-            undo: function() {
-                undoLastPoint();
-                return "Letzter Punkt rückgängig gemacht";
-            },
-            reset: function() {
-                resetMatch();
-                return "Match zurückgesetzt";
-            },
-            getSpielstand: function() {
-                return {
-                    rot: { saetze: p1.sets, spiele: p1.games, punkte: pointValues[p1.points] },
-                    gruen: { saetze: p2.sets, spiele: p2.games, punkte: pointValues[p2.points] },
-                    beendet: matchOver
-                };
-            }
-        };
 
         function setTargetSets(sets) {
             if (history.length > 0 || p1.points > 0 || p2.points > 0 || p1.games > 0 || p2.games > 0) return;
@@ -281,3 +253,29 @@
                 p1 = { points: 0, games: 0, sets: 0 };
                 p2 = { points: 0, games: 0, sets: 0 };
                 history = [];
+                matchOver = false;
+                document.getElementById("mode-2").disabled = false;
+                document.getElementById("mode-3").disabled = false;
+                setTargetSets(2);
+                updateDisplay();
+            }
+        }
+
+        // --- API-SCHNITTSTELLE AM ENDE SICHER ANGEHÄNGT ---
+        window.TennisAPI = {
+            punktRot: function() { pointWonBy(1); },
+            punktGruen: function() { pointWonBy(2); },
+            undo: function() { undoLastPoint(); },
+            reset: function() { resetMatch(); },
+            status: function() {
+                return {
+                    rot: { saetze: p1.sets, spiele: p1.games, punkte: pointValues[p1.points] },
+                    gruen: { saetze: p2.sets, spiele: p2.games, punkte: pointValues[p2.points] }
+                };
+            }
+        };
+
+        updateDisplay();
+    </script>
+</body>
+</html>
