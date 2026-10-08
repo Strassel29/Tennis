@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Tennis Zähler (Repariert und Bereinigt)</title>
+    <!-- Versionsnummer im Titel zur Cache-Kontrolle -->
+    <title>Tennis Zähler v1.1.0</title>
     <style>
         * {
             box-sizing: border-box;
@@ -176,6 +177,14 @@
             font-weight: bold;
         }
         .btn-undo { background-color: #616161; }
+
+        /* Versions-Fußzeile */
+        .version-tag {
+            font-size: 0.75rem;
+            color: #555;
+            margin-top: 15px;
+            text-align: center;
+        }
     </style>
 </head>
 <body>
@@ -230,6 +239,9 @@
             <button class="btn-control btn-undo" onclick="undoLastPoint()">↩ Undo</button>
             <button class="btn-control" onclick="resetMatch()">Reset</button>
         </div>
+        
+        <!-- Sichtbare Versionsnummer auf dem Display -->
+        <div class="version-tag">App-Version: v1.1.0</div>
     </div>
 
     <script>
@@ -274,21 +286,9 @@
             recognition.onresult = function(event) {
                 const resultIndex = event.resultIndex;
                 const text = event.results[resultIndex].transcript.toLowerCase().trim();
-                document.getElementById("voice-status").innerText = `Geheard: "${text}"`;
+                document.getElementById("voice-status").innerText = `Gehört: "${text}"`;
 
                 if (matchOver) return;
 
                 const gehörtRot = keywordsRot.some(word => text.includes(word));
                 const gehörtGruen = keywordsGruen.some(word => text.includes(word));
-                const gehörtUndo = keywordsUndo.some(word => text.includes(word));
-
-                if (gehörtRot) {
-                    pointWonBy(1);
-                } else if (gehörtGruen) {
-                    pointWonBy(2);
-                } else if (gehörtUndo) {
-                    undoLastPoint();
-                }
-            };
-
-            recognition.onerror = function() {
