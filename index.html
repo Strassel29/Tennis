@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tennis Zähler v1.2.5</title>
+    <title>Tennis Zähler v1.3.0</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -15,7 +15,6 @@
         }
         h1 { color: #ffca28; margin-bottom: 20px; }
         
-        /* Gewinnsatz-Knöpfe aus v1.2.3 modifiziert */
         .settings {
             background-color: #1e1e1e;
             max-width: 500px;
@@ -98,7 +97,6 @@
 
     <h1>Tennis Zähler</h1>
 
-    <!-- Einfache, funktionierende Knöpfe statt blockierender Radio-Buttons -->
     <div class="settings">
         <button id="mode-2" class="btn-mode active" onclick="setTargetSets(2)">2 Gewinnsätze</button>
         <button id="mode-3" class="btn-mode" onclick="setTargetSets(3)">3 Gewinnsätze</button>
@@ -123,7 +121,6 @@
         </div>
     </div>
 
-    <!-- Die originalen, funktionierenden Buttons aus v1.2.3 -->
     <div class="btn-container">
         <button class="btn btn-rot" onclick="pointWonBy(1)">+ Team Rot</button>
         <button class="btn btn-gruen" onclick="pointWonBy(2)">+ Team Grün</button>
@@ -134,7 +131,7 @@
         <button class="btn-control" onclick="resetMatch()">Reset</button>
     </div>
 
-    <div class="version-tag">Version: v1.2.5</div>
+    <div class="version-tag">Version: v1.3.0 (mit API-Schnittstelle)</div>
 
     <script>
         let p1 = { points: 0, games: 0, sets: 0 };
@@ -145,17 +142,41 @@
         
         const pointValues = ["0", "15", "30", "40", "Vorteil"];
 
-        // Neue, unkomplizierte Auswahl-Logik ohne Radio-Buttons
+        // --- DIE NEUE SPRACH-SCHNITTSTELLE (API) ---
+        // Jedes externe System kann ab jetzt diese globalen Funktionen aufrufen.
+        window.TennisAPI = {
+            punktFuerRot: function() {
+                pointWonBy(1);
+                return "Punkt für Team Rot registriert";
+            },
+            punktFuerGruen: function() {
+                pointWonBy(2);
+                return "Punkt für Team Grün registriert";
+            },
+            undo: function() {
+                undoLastPoint();
+                return "Letzter Punkt rückgängig gemacht";
+            },
+            reset: function() {
+                resetMatch();
+                return "Match zurückgesetzt";
+            },
+            getSpielstand: function() {
+                return {
+                    rot: { saetze: p1.sets, spiele: p1.games, punkte: pointValues[p1.points] },
+                    gruen: { saetze: p2.sets, spiele: p2.games, punkte: pointValues[p2.points] },
+                    beendet: matchOver
+                };
+            }
+        };
+
         function setTargetSets(sets) {
             if (history.length > 0 || p1.points > 0 || p2.points > 0 || p1.games > 0 || p2.games > 0) return;
-            
             targetSets = sets;
-            
             document.getElementById("mode-2").className = (sets === 2) ? "btn-mode active" : "btn-mode";
             document.getElementById("mode-3").className = (sets === 3) ? "btn-mode active" : "btn-mode";
         }
 
-        // Steuerung über Lautstärketasten (v1.2.3)
         window.addEventListener('keydown', function(event) {
             if (matchOver) return;
             if (event.key === "+" || event.key === "VolumeUp" || event.key === "ArrowUp") {
@@ -176,7 +197,6 @@
                 matchOver: matchOver
             });
 
-            // Knöpfe einfrieren, sobald gespielt wird
             document.getElementById("mode-2").disabled = true;
             document.getElementById("mode-3").disabled = true;
 
@@ -261,15 +281,3 @@
                 p1 = { points: 0, games: 0, sets: 0 };
                 p2 = { points: 0, games: 0, sets: 0 };
                 history = [];
-                matchOver = false;
-                document.getElementById("mode-2").disabled = false;
-                document.getElementById("mode-3").disabled = false;
-                setTargetSets(2);
-                updateDisplay();
-            }
-        }
-
-        updateDisplay();
-    </script>
-</body>
-</html>
