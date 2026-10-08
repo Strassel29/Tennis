@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Tennis Zähler v2.3.0</title>
+    <title>Tennis Zähler v3.0.0</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -39,42 +39,6 @@
         .btn-mode.active {
             background-color: #ffca28;
             color: black;
-        }
-
-        /* Sprachsteuerungs-Bedienfeld */
-        .voice-card {
-            background-color: #1a237e;
-            max-width: 500px;
-            margin: 0 auto 20px auto;
-            padding: 15px;
-            border-radius: 10px;
-            border: 1px solid #283593;
-        }
-        .btn-voice {
-            background-color: #ff9800;
-            color: black;
-            border: none;
-            padding: 10px 20px;
-            font-weight: bold;
-            border-radius: 20px;
-            cursor: pointer;
-            font-size: 1rem;
-        }
-        .btn-voice.active-mode {
-            background-color: #4caf50;
-            color: white;
-            animation: pulse 2s infinite;
-        }
-        @keyframes pulse {
-            0% { opacity: 1; }
-            50% { opacity: 0.7; }
-            100% { opacity: 1; }
-        }
-        #voice-status {
-            font-size: 0.95rem;
-            margin-top: 8px;
-            font-style: italic;
-            color: #ffca28;
         }
 
         .scoreboard {
@@ -138,13 +102,6 @@
         <button id="mode-3" class="btn-mode" onclick="setTargetSets(3)">3 Gewinnsätze</button>
     </div>
 
-    <!-- Sprachsteuerungs-Bedienfeld -->
-    <div class="voice-card">
-        <strong>🎤 Platz-Sprachsteuerung & Standby-Schutz</strong><br>
-        <button id="btn-voice-toggle" class="btn-voice" onclick="toggleVoiceSystem()">Spracherkennung starten</button>
-        <div id="voice-status">Inaktiv. Klicke auf den Button zum Starten.</div>
-    </div>
-
     <div class="scoreboard">
         <div class="grid">
             <div class="header" style="text-align: left;">Team</div>
@@ -174,9 +131,8 @@
         <button class="btn-control" onclick="resetMatch()">Reset</button>
     </div>
 
-    <div class="version-tag">Version: v2.3.0</div>
+    <div class="version-tag">Version: v3.0.0 (Externe URL-Schnittstelle)</div>
 
-    <!-- Haupt-Logik (Absolut unberührt aus v2.1.0) -->
     <script>
         let p1 = { points: 0, games: 0, sets: 0 };
         let p2 = { points: 0, games: 0, sets: 0 };
@@ -288,3 +244,32 @@
             document.getElementById("p2-points").innerText = pointValues[p2.points] || "0";
             document.getElementById("p1-games").innerText = p1.games;
             document.getElementById("p2-games").innerText = p2.games;
+            document.getElementById("p1-sets").innerText = p1.sets;
+            document.getElementById("p2-sets").innerText = p2.sets;
+        }
+
+        function resetMatch() {
+            if (confirm("Match zurücksetzen?")) {
+                p1 = { points: 0, games: 0, sets: 0 };
+                p2 = { points: 0, games: 0, sets: 0 };
+                history = [];
+                matchOver = false;
+                document.getElementById("mode-2").disabled = false;
+                document.getElementById("mode-3").disabled = false;
+                setTargetSets(2);
+                updateDisplay();
+            }
+        }
+
+        // =========================================================
+        // --- NEUE INTERNET-SCHNITTSTELLE ÜBER URL-PARAMETER ---
+        // =========================================================
+        function checkUrlCommands() {
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.has('cmd')) {
+                const command = urlParams.get('cmd').toLowerCase();
+                
+                if (command === 'rot' || command === 'brot') pointWonBy(1);
+                if (command === 'gruen' || command === 'grün') pointWonBy(2);
+                
+                // Bereinigt die URL sofort, damit beim manuellen Aktualisieren nicht doppelt gezählt wird
