@@ -4,13 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <!-- Versionsnummer im Titel zur Cache-Kontrolle -->
-    <title>Tennis Zähler v1.1.0</title>
+    <title>Tennis Zähler v1.1.1</title>
     <style>
         * {
             box-sizing: border-box;
             -webkit-tap-highlight-color: transparent;
-            touch-action: manipulation;
-            user-select: none;
         }
         body {
             font-family: 'Roboto', 'Segoe UI', sans-serif;
@@ -151,10 +149,10 @@
             text-shadow: 1px 1px 2px rgba(0,0,0,0.6);
         }
         .btn-rot { background-color: #d32f2f; color: white; }
-        .btn-rot:active { background-color: #b71c1c; }
+        .btn-rot:hover, .btn-rot:active { background-color: #b71c1c; }
         
         .btn-gruen { background-color: #388e3c; color: white; }
-        .btn-gruen:active { background-color: #1b5e20; }
+        .btn-gruen:hover, .btn-gruen:active { background-color: #1b5e20; }
         
         .btn-disabled { opacity: 0.15; pointer-events: none; }
         
@@ -178,7 +176,6 @@
         }
         .btn-undo { background-color: #616161; }
 
-        /* Versions-Fußzeile */
         .version-tag {
             font-size: 0.75rem;
             color: #555;
@@ -240,8 +237,8 @@
             <button class="btn-control" onclick="resetMatch()">Reset</button>
         </div>
         
-        <!-- Sichtbare Versionsnummer auf dem Display -->
-        <div class="version-tag">App-Version: v1.1.0</div>
+        <!-- Sichtbare Versionsnummer zur Cache-Überprüfung -->
+        <div class="version-tag">App-Version: v1.1.1</div>
     </div>
 
     <script>
@@ -292,3 +289,6 @@
 
                 const gehörtRot = keywordsRot.some(word => text.includes(word));
                 const gehörtGruen = keywordsGruen.some(word => text.includes(word));
+                const gehörtUndo = keywordsUndo.some(word => text.includes(word));
+
+                if (gehörtRot) {
