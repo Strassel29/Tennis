@@ -3,184 +3,156 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <!-- Versionsnummer im Titel zur Cache-Kontrolle -->
-    <title>Tennis Score Pro v1.3.2</title>
+    <!-- Eindeutige Version zur Cache-Kontrolle -->
+    <title>Tennis Zähler v1.4.0</title>
     <style>
-        :root {
-            --bg-main: #0f172a;       
-            --bg-card: #1e293b;       
-            --accent-yellow: #f59e0b; 
-            --team-red: #ef4444;      
-            --team-green: #10b981;    
-            --text-light: #f8fafc;
-            --text-dim: #94a3b8;
-        }
-
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            -webkit-tap-highlight-color: transparent;
             font-family: Arial, sans-serif;
+            /* Verhindert blaue Markierungen beim Tippen */
+            -webkit-tap-highlight-color: transparent;
         }
 
         body {
-            background-color: var(--bg-main);
-            color: var(--text-light);
-            min-height: 100vh;
+            background-color: #0f172a;
+            color: #f8fafc;
+            padding: 20px;
             display: flex;
             flex-direction: column;
             align-items: center;
-            padding: 20px;
         }
 
-        /* Der korrigierte Hauptcontainer, der alle Elemente sauber umschließt */
         .container {
             width: 100%;
-            max-width: 480px;
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
+            max-width: 450px;
         }
 
         h1 {
             text-align: center;
             font-size: 1.8rem;
-            font-weight: 800;
-            color: var(--accent-yellow);
+            color: #f59e0b;
+            margin: 15px 0;
             text-transform: uppercase;
-            letter-spacing: 1px;
-            margin: 10px 0 5px 0;
         }
 
-        /* Modus-Auswahl */
-        .settings-card {
-            background-color: var(--bg-card);
-            border-radius: 16px;
-            padding: 16px;
+        .card {
+            background-color: #1e293b;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 25px;
             border: 1px solid #334155;
             text-align: center;
         }
 
-        .settings-title {
+        .title {
             font-size: 0.85rem;
-            color: var(--text-dim);
+            color: #94a3b8;
             text-transform: uppercase;
-            letter-spacing: 1.5px;
-            margin-bottom: 12px;
-            font-weight: 700;
+            margin-bottom: 10px;
+            font-weight: bold;
         }
 
+        /* Modus-Auswahl */
         .mode-switch {
             display: flex;
-            gap: 12px;
+            gap: 10px;
         }
 
         .btn-mode {
             flex: 1;
-            padding: 14px;
+            padding: 12px;
             font-size: 1rem;
-            font-weight: 700;
+            font-weight: bold;
             border: 2px solid #334155;
-            border-radius: 10px;
+            border-radius: 8px;
             background-color: #0f172a;
-            color: var(--text-dim);
+            color: #94a3b8;
             cursor: pointer;
         }
 
         .btn-mode.active {
-            background-color: var(--accent-yellow);
+            background-color: #f59e0b;
             color: #0f172a;
-            border-color: var(--accent-yellow);
+            border-color: #f59e0b;
         }
 
         /* Anzeigetafel */
-        .scoreboard {
-            background-color: var(--bg-card);
-            border-radius: 20px;
-            padding: 20px;
-            border: 1px solid #334155;
-        }
-
         .grid {
             display: grid;
             grid-template-columns: 2fr 1fr 1fr 1fr;
-            gap: 10px;
+            gap: 8px;
             align-items: center;
         }
 
         .grid-header {
             font-size: 0.8rem;
-            font-weight: 700;
-            color: var(--text-dim);
+            color: #94a3b8;
             text-transform: uppercase;
-            letter-spacing: 1px;
-            border-bottom: 2px solid #334155;
-            padding-bottom: 8px;
-            text-align: center;
+            border-bottom: 1px solid #334155;
+            padding-bottom: 5px;
         }
-        .grid-header.team-col { text-align: left; }
 
-        .team-row {
-            font-size: 1.2rem;
-            font-weight: 800;
+        .team-name {
+            font-size: 1.1rem;
+            font-weight: bold;
             text-align: left;
         }
 
         .score-box {
-            background: #0f172a;
-            padding: 12px 5px;
-            border-radius: 8px;
-            font-size: 1.4rem;
+            background-color: #0f172a;
+            padding: 10px 2px;
+            border-radius: 6px;
+            font-size: 1.3rem;
             font-weight: bold;
-            text-align: center;
             border: 1px solid #334155;
         }
+
         .score-box.points {
-            color: var(--accent-yellow);
-            font-size: 1.6rem;
-            border-color: var(--accent-yellow);
+            color: #f59e0b;
+            border-color: #f59e0b;
         }
 
         /* Große Klick-Buttons */
         .btn-container {
             display: flex;
-            gap: 16px;
+            gap: 15px;
+            margin-bottom: 25px;
         }
 
         .btn-score {
             flex: 1;
-            padding: 35px 10px;
-            font-size: 1.4rem;
-            font-weight: 800;
+            padding: 30px 10px;
+            font-size: 1.3rem;
+            font-weight: bold;
             cursor: pointer;
             border: none;
-            border-radius: 14px;
+            border-radius: 12px;
             color: white;
-            box-shadow: 0 6px 12px rgba(0,0,0,0.4);
         }
 
         .btn-rot { background-color: #d32f2f; }
         .btn-gruen { background-color: #388e3c; }
         .btn-score:active { opacity: 0.7; }
 
-        /* Footer Steuerungen */
+        /* Systemknöpfe */
         .footer-controls {
             display: flex;
             justify-content: space-between;
-            gap: 16px;
+            gap: 15px;
         }
 
         .btn-control {
             flex: 1;
             background-color: #334155;
-            color: var(--text-light);
-            padding: 14px;
-            font-size: 1rem;
-            font-weight: 700;
+            color: white;
+            padding: 12px;
+            font-size: 0.95rem;
             border: none;
-            border-radius: 10px;
+            border-radius: 8px;
             cursor: pointer;
+            font-weight: bold;
         }
         .btn-undo { background-color: #1e293b; border: 1px solid #334155; }
 
@@ -188,20 +160,18 @@
             font-size: 0.75rem;
             color: #475569;
             text-align: center;
-            margin-top: 20px;
-            font-weight: 600;
+            margin-top: 25px;
         }
     </style>
 </head>
 <body>
 
-    <!-- Start des umschließenden Containers -->
     <div class="container">
         <h1>Scoreboard Pro</h1>
 
-        <!-- Auswahl der Gewinnsätze -->
-        <div class="settings-card">
-            <div class="settings-title">Match-Modus Festlegen</div>
+        <!-- Auswahl Gewinnsätze -->
+        <div class="card">
+            <div class="title">Match-Modus</div>
             <div class="mode-switch">
                 <button id="mode-2" class="btn-mode active" onclick="setTargetSets(2)">2 Gewinnsätze</button>
                 <button id="mode-3" class="btn-mode" onclick="setTargetSets(3)">3 Gewinnsätze</button>
@@ -209,41 +179,41 @@
         </div>
 
         <!-- Anzeigetafel -->
-        <div class="scoreboard">
+        <div class="card">
             <div class="grid">
-                <div class="grid-header team-col">Team</div>
+                <div class="grid-header" style="text-align: left;">Team</div>
                 <div class="grid-header">Sätze</div>
                 <div class="grid-header">Spiele</div>
                 <div class="grid-header">Punkt</div>
 
                 <!-- Reihe Team Rot -->
-                <div class="team-row" style="color: var(--team-red);">Team Rot</div>
+                <div class="team-name" style="color: #ef4444;">Team Rot</div>
                 <div id="p1-sets" class="score-box">0</div>
                 <div id="p1-games" class="score-box">0</div>
                 <div id="p1-points" class="score-box points">0</div>
 
                 <!-- Reihe Team Grün -->
-                <div class="team-row" style="color: var(--team-green);">Team Grün</div>
+                <div class="team-name" style="color: #10b981;">Team Grün</div>
                 <div id="p2-sets" class="score-box">0</div>
                 <div id="p2-games" class="score-box">0</div>
                 <div id="p2-points" class="score-box points">0</div>
             </div>
         </div>
 
-        <!-- Zähl-Buttons -->
+        <!-- Große Zählbuttons -->
         <div class="btn-container">
             <button class="btn-score btn-rot" onclick="pointWonBy(1)">+ Team Rot</button>
             <button class="btn-score btn-gruen" onclick="pointWonBy(2)">+ Team Grün</button>
         </div>
 
-        <!-- Systemknöpfe -->
+        <!-- Systemtasten -->
         <div class="footer-controls">
             <button class="btn-control btn-undo" onclick="undoLastPoint()">↩ Undo</button>
             <button class="btn-control" onclick="resetMatch()">Reset</button>
         </div>
         
-        <div class="version-tag">VERSION: v1.3.2</div>
-    </div> <!-- Ende des Containers -->
+        <div class="version-tag">VERSION: v1.4.0</div>
+    </div>
 
     <script>
         let p1 = { points: 0, games: 0, sets: 0 };
@@ -272,7 +242,7 @@
             }
         }
 
-        // Steuerung über Hardware-Lautstärketasten (+ / -)
+        // Steuerung über Lautstärketasten
         window.addEventListener('keydown', function(event) {
             if (matchOver) return;
             if (event.key === "+" || event.key === "VolumeUp" || event.key === "ArrowUp") {
@@ -287,12 +257,11 @@
         function pointWonBy(player) {
             if (matchOver) return;
 
-            // Spielmodus einfrieren bei Spielbeginn
+            // Auswahl einfrieren
             modeLocked = true;
-            document.getElementById("mode-2").style.opacity = "0.4";
-            document.getElementById("mode-3").style.opacity = "0.4";
+            document.getElementById("mode-2").style.opacity = "0.3";
+            document.getElementById("mode-3").style.opacity = "0.3";
 
-            // Historie sichern
             history.push({
                 p1: { points: p1.points, games: p1.games, sets: p1.sets },
                 p2: { points: p2.points, games: p2.games, sets: p2.sets },
@@ -310,9 +279,51 @@
             } else if (server.points === 3 && receiver.points === 3) {
                 server.points = 4; // Vorteil
             } else if (server.points === 3 && receiver.points === 4) {
-                receiver.points = 3; // Zurück zu Einstand
+                receiver.points = 3; // Einstand
             } else if (server.points === 4) {
                 winGame(player);
                 return;
             }
             updateDisplay();
+        }
+
+        function winGame(player) {
+            p1.points = 0;
+            p2.points = 0;
+
+            if (player === 1) {
+                p1.games++;
+                if (p1.games >= 6 && (p1.games - p2.games) >= 2) {
+                    winSet(1);
+                    return;
+                }
+            } else {
+                p2.games++;
+                if (p2.games >= 6 && (p2.games - p1.games) >= 2) {
+                    winSet(2);
+                    return;
+                }
+            }
+            updateDisplay();
+        }
+
+        function winSet(player) {
+            p1.games = 0;
+            p2.games = 0;
+            
+            if (player === 1) {
+                p1.sets++;
+                if (p1.sets === targetSets) { matchOver = true; alert("Match beendet! Team Rot gewinnt!"); }
+            } else {
+                p2.sets++;
+                if (p2.sets === targetSets) { matchOver = true; alert("Match beendet! Team Grün gewinnt!"); }
+            }
+            updateDisplay();
+        }
+
+        function undoLastPoint() {
+            if (history.length === 0) return;
+            const lastState = history.pop();
+            p1 = lastState.p1;
+            p2 = lastState.p2;
+            modeLocked = lastState.modeLocked;
