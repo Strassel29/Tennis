@@ -2,244 +2,120 @@
 <html lang="de">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <!-- Versionsnummer im Titel zur Cache-Kontrolle -->
-    <title>Tennis Zähler v1.1.1</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tennis Zähler v1.2.0</title>
     <style>
-        * {
-            box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
-        }
         body {
-            font-family: 'Roboto', 'Segoe UI', sans-serif;
+            font-family: Arial, sans-serif;
             text-align: center;
             background-color: #121212;
             color: #e0e0e0;
             margin: 0;
-            padding: 15px;
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-            justify-content: space-between;
+            padding: 20px;
         }
-        h1 { 
-            margin: 5px 0 10px 0; 
-            font-size: 1.8rem; 
-            color: #ffca28; 
-        }
+        h1 { color: #ffca28; margin-bottom: 20px; }
         
-        .match-settings {
+        .settings {
             background-color: #1e1e1e;
-            max-width: 600px;
-            margin: 0 auto 10px auto;
-            padding: 10px;
-            border-radius: 10px;
-            width: 100%;
-            border: 1px solid #333;
+            max-width: 500px;
+            margin: 0 auto 20px auto;
+            padding: 15px;
+            border-radius: 8px;
         }
-        .match-settings label {
-            margin: 0 15px;
-            font-size: 1.1rem;
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-        }
-        .match-settings input {
-            margin-right: 8px;
-            transform: scale(1.3);
-        }
-
-        .voice-panel {
-            background-color: #212121;
-            max-width: 600px;
-            margin: 0 auto 10px auto;
-            padding: 10px;
-            border-radius: 10px;
-            width: 100%;
-            border: 1px solid #424242;
-        }
-        .btn-voice {
-            background-color: #ffca28;
-            color: black;
-            border: none;
-            padding: 8px 15px;
-            font-weight: bold;
-            border-radius: 20px;
-            cursor: pointer;
-            font-size: 1rem;
-            margin-top: 5px;
-        }
-        .btn-voice.listening {
-            background-color: #0288d1;
-            color: white;
-            animation: pulse 1.5s infinite;
-        }
-        @keyframes pulse {
-            0% { opacity: 1; }
-            50% { opacity: 0.6; }
-            100% { opacity: 1; }
-        }
-        #voice-status {
-            font-size: 0.9rem;
-            color: #ffca28;
-            margin-top: 5px;
-            font-style: italic;
-        }
+        .settings label { margin: 0 15px; font-size: 1.1rem; cursor: pointer; }
+        .settings input { transform: scale(1.2); margin-right: 5px; }
 
         .scoreboard {
             background-color: #1e1e1e;
             border-radius: 12px;
-            padding: 15px;
-            max-width: 600px;
-            margin: 0 auto auto auto;
-            width: 100%;
-            border: 1px solid #333;
+            padding: 20px;
+            max-width: 500px;
+            margin: 0 auto 20px auto;
         }
         .grid {
             display: grid;
             grid-template-columns: 2fr 1fr 1fr 1fr;
-            gap: 8px;
+            gap: 10px;
             align-items: center;
-        }
-        .header { 
-            font-weight: bold; 
-            color: #9e9e9e; 
-            border-bottom: 2px solid #333; 
-            padding-bottom: 8px;
-            font-size: 0.9rem;
-            text-transform: uppercase;
-        }
-        .player-name { 
-            text-align: left; 
-            font-weight: bold; 
             font-size: 1.2rem;
         }
+        .header { font-weight: bold; color: #9e9e9e; border-bottom: 2px solid #333; padding-bottom: 10px; }
+        .player-name { text-align: left; font-weight: bold; }
+        
         .score-box {
             background: #0d0d0d;
             padding: 12px 5px;
             border-radius: 6px;
             font-size: 1.4rem;
             font-weight: bold;
-            color: #e0e0e0;
-            border: 1px solid #333;
         }
-        .score-box.points { 
-            color: #ffca28; 
-            font-size: 1.6rem;
-            border-color: #ffca28;
-        }
+        .score-box.points { color: #ffca28; }
         
         .btn-container {
             display: flex;
             gap: 15px;
-            justify-content: center;
-            max-width: 600px;
-            margin: 15px auto 0 auto;
-            width: 100%;
+            max-width: 500px;
+            margin: 0 auto 20px auto;
         }
         .btn {
             flex: 1;
-            padding: 30px 10px;
-            font-size: 1.4rem;
+            padding: 35px 10px;
+            font-size: 1.5rem;
             font-weight: bold;
             cursor: pointer;
             border: none;
-            border-radius: 14px;
-            box-shadow: 0 6px 12px rgba(0,0,0,0.5);
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.6);
+            border-radius: 10px;
+            color: white;
         }
-        .btn-rot { background-color: #d32f2f; color: white; }
-        .btn-rot:hover, .btn-rot:active { background-color: #b71c1c; }
+        .btn-rot { background-color: #d32f2f; }
+        .btn-gruen { background-color: #388e3c; }
+        .btn:active { opacity: 0.8; }
         
-        .btn-gruen { background-color: #388e3c; color: white; }
-        .btn-gruen:hover, .btn-gruen:active { background-color: #1b5e20; }
+        .footer-controls { max-width: 500px; margin: 0 auto; display: flex; justify-content: space-between; }
+        .btn-control { background-color: #424242; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; font-size: 1rem; }
         
-        .btn-disabled { opacity: 0.15; pointer-events: none; }
-        
-        .footer-controls {
-            margin-top: 10px;
-            display: flex;
-            justify-content: space-between;
-            max-width: 600px;
-            margin: 10px auto 0 auto;
-            width: 100%;
-        }
-        .btn-control {
-            background-color: #424242;
-            color: #fff;
-            padding: 12px 20px;
-            font-size: 0.95rem;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: bold;
-        }
-        .btn-undo { background-color: #616161; }
-
-        .version-tag {
-            font-size: 0.75rem;
-            color: #555;
-            margin-top: 15px;
-            text-align: center;
-        }
+        .version-tag { font-size: 0.8rem; color: #555; margin-top: 30px; }
     </style>
 </head>
 <body>
 
-    <div>
-        <h1>Tennis Zähler</h1>
+    <h1>Tennis Zähler</h1>
 
-        <div class="match-settings">
-            <label>
-                <input type="radio" name="matchMode" value="2" checked onchange="updateRequiredSets()"> 2 Gewinnsätze
-            </label>
-            <label>
-                <input type="radio" name="matchMode" value="3" onchange="updateRequiredSets()"> 3 Gewinnsätze
-            </label>
-        </div>
+    <div class="settings">
+        <label><input type="radio" name="matchMode" value="2" checked onchange="updateRequiredSets()"> 2 Gewinnsätze</label>
+        <label><input type="radio" name="matchMode" value="3" onchange="updateRequiredSets()"> 3 Gewinnsätze</label>
+    </div>
 
-        <div class="voice-panel">
-            <strong>🎤 Intelligente Sprachsteuerung</strong><br>
-            <button id="btn-voice" class="btn-voice" onclick="toggleVoiceRecognition()">Spracherkennung starten</button>
-            <div id="voice-status">Inaktiv (Befehle: "Rot", "Grün", "Brot")</div>
-        </div>
+    <div class="scoreboard">
+        <div class="grid">
+            <div class="header" style="text-align: left;">Team</div>
+            <div class="header">Sätze</div>
+            <div class="header">Spiele</div>
+            <div class="header">Punkt</div>
 
-        <div class="scoreboard">
-            <div class="grid">
-                <div class="header" style="text-align: left;">Team</div>
-                <div class="header">Sätze</div>
-                <div class="header">Spiele</div>
-                <div class="header">Punkt</div>
+            <div class="player-name" style="color: #ff5252;">Team Rot (+)</div>
+            <div id="p1-sets" class="score-box">0</div>
+            <div id="p1-games" class="score-box">0</div>
+            <div id="p1-points" class="score-box points">0</div>
 
-                <!-- Team Rot -->
-                <div class="player-name" style="color: #ff5252;">Team Rot (+)</div>
-                <div id="p1-sets" class="score-box">0</div>
-                <div id="p1-games" class="score-box">0</div>
-                <div id="p1-points" class="score-box points">0</div>
-
-                <!-- Team Grün -->
-                <div class="player-name" style="color: #69f0ae;">Team Grün (-)</div>
-                <div id="p2-sets" class="score-box">0</div>
-                <div id="p2-games" class="score-box">0</div>
-                <div id="p2-points" class="score-box points">0</div>
-            </div>
+            <div class="player-name" style="color: #69f0ae;">Team Grün (-)</div>
+            <div id="p2-sets" class="score-box">0</div>
+            <div id="p2-games" class="score-box">0</div>
+            <div id="p2-points" class="score-box points">0</div>
         </div>
     </div>
 
-    <div>
-        <div class="btn-container">
-            <button id="btn-p1" class="btn btn-rot" onclick="pointWonBy(1)">+ Punkt<br>Team Rot</button>
-            <button id="btn-p2" class="btn btn-gruen" onclick="pointWonBy(2)">+ Punkt<br>Team Grün</button>
-        </div>
-
-        <div class="footer-controls">
-            <button class="btn-control btn-undo" onclick="undoLastPoint()">↩ Undo</button>
-            <button class="btn-control" onclick="resetMatch()">Reset</button>
-        </div>
-        
-        <!-- Sichtbare Versionsnummer zur Cache-Überprüfung -->
-        <div class="version-tag">App-Version: v1.1.1</div>
+    <div class="btn-container">
+        <button class="btn btn-rot" onclick="pointWonBy(1)">+ Team Rot</button>
+        <button class="btn btn-gruen" onclick="pointWonBy(2)">+ Team Grün</button>
     </div>
+
+    <div class="footer-controls">
+        <button class="btn-control" onclick="undoLastPoint()">↩ Undo</button>
+        <button class="btn-control" onclick="resetMatch()">Reset</button>
+    </div>
+
+    <div class="version-tag">Version: v1.2.0</div>
 
     <script>
         let p1 = { points: 0, games: 0, sets: 0 };
@@ -247,48 +123,124 @@
         let history = [];
         let targetSets = 2;
         let matchOver = false;
-        let isListening = false;
-        let recognition = null;
         
         const pointValues = ["0", "15", "30", "40", "Vorteil"];
 
-        const keywordsRot = ["rot", "brot", "boot", "kot", "not", "rod", "tod", "dot", "root", "road"];
-        const keywordsGruen = ["grün", "gruen", "früh", "brüh", "kien", "gryn", "dünn", "grien", "queen"];
-        const keywordsUndo = ["zurück", "zuruck", "rückgängig", "undo", "fehler", "stop", "nein"];
-
         function updateRequiredSets() {
             const el = document.querySelector('input[name="matchMode"]:checked');
-            if(el) targetSets = parseInt(el.value);
+            if (el) targetSets = parseInt(el.value);
         }
 
+        // Physische Tasten (+ für Rot, - für Grün)
         window.addEventListener('keydown', function(event) {
             if (matchOver) return;
-            if (event.key === "+" || event.key === "VolumeUp" || event.key === "ArrowUp" || event.key === "ArrowRight") {
+            if (event.key === "+" || event.key === "VolumeUp" || event.key === "ArrowUp") {
                 event.preventDefault();
                 pointWonBy(1);
-            }
-            else if (event.key === "-" || event.key === "VolumeDown" || event.key === "ArrowDown" || event.key === "ArrowLeft") {
+            } else if (event.key === "-" || event.key === "VolumeDown" || event.key === "ArrowDown") {
                 event.preventDefault();
                 pointWonBy(2);
             }
         });
 
-        if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
-            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-            recognition = new SpeechRecognition();
-            recognition.lang = 'de-DE';
-            recognition.continuous = true;
-            recognition.interimResults = false;
+        function pointWonBy(player) {
+            if (matchOver) return;
 
-            recognition.onresult = function(event) {
-                const resultIndex = event.resultIndex;
-                const text = event.results[resultIndex].transcript.toLowerCase().trim();
-                document.getElementById("voice-status").innerText = `Gehört: "${text}"`;
+            // Historie sichern
+            history.push({
+                p1: { points: p1.points, games: p1.games, sets: p1.sets },
+                p2: { points: p2.points, games: p2.games, sets: p2.sets },
+                matchOver: matchOver
+            });
 
-                if (matchOver) return;
+            // Radiobuttons sperren
+            document.querySelectorAll('input[name="matchMode"]').forEach(el => el.disabled = true);
 
-                const gehörtRot = keywordsRot.some(word => text.includes(word));
-                const gehörtGruen = keywordsGruen.some(word => text.includes(word));
-                const gehörtUndo = keywordsUndo.some(word => text.includes(word));
+            let server = (player === 1) ? p1 : p2;
+            let receiver = (player === 1) ? p2 : p1;
 
-                if (gehörtRot) {
+            if (server.points < 3) {
+                server.points++;
+            } else if (server.points === 3 && receiver.points < 3) {
+                winGame(player);
+                return;
+            } else if (server.points === 3 && receiver.points === 3) {
+                server.points = 4; // Vorteil
+            } else if (server.points === 3 && receiver.points === 4) {
+                receiver.points = 3; // Einstand
+            } else if (server.points === 4) {
+                winGame(player);
+                return;
+            }
+            updateDisplay();
+        }
+
+        function winGame(player) {
+            p1.points = 0;
+            p2.points = 0;
+
+            if (player === 1) {
+                p1.games++;
+                if (p1.games >= 6 && (p1.games - p2.games) >= 2) {
+                    winSet(1);
+                    return;
+                }
+            } else {
+                p2.games++;
+                if (p2.games >= 6 && (p2.games - p1.games) >= 2) {
+                    winSet(2);
+                    return;
+                }
+            }
+            updateDisplay();
+        }
+
+        function winSet(player) {
+            p1.games = 0;
+            p2.games = 0;
+            
+            if (player === 1) {
+                p1.sets++;
+                if (p1.sets === targetSets) { matchOver = true; alert("Match beendet! Team Rot gewinnt!"); }
+            } else {
+                p2.sets++;
+                if (p2.sets === targetSets) { matchOver = true; alert("Match beendet! Team Grün gewinnt!"); }
+            }
+            updateDisplay();
+        }
+
+        function undoLastPoint() {
+            if (history.length === 0) return;
+            const lastState = history.pop();
+            p1 = lastState.p1;
+            p2 = lastState.p2;
+            matchOver = lastState.matchOver;
+            updateDisplay();
+        }
+
+        function updateDisplay() {
+            document.getElementById("p1-points").innerText = pointValues[p1.points] || "0";
+            document.getElementById("p2-points").innerText = pointValues[p2.points] || "0";
+            document.getElementById("p1-games").innerText = p1.games;
+            document.getElementById("p2-games").innerText = p2.games;
+            document.getElementById("p1-sets").innerText = p1.sets;
+            document.getElementById("p2-sets").innerText = p2.sets;
+        }
+
+        function resetMatch() {
+            if (confirm("Match zurücksetzen?")) {
+                p1 = { points: 0, games: 0, sets: 0 };
+                p2 = { points: 0, games: 0, sets: 0 };
+                history = [];
+                matchOver = false;
+                document.querySelectorAll('input[name="matchMode"]').forEach(el => el.disabled = false);
+                updateRequiredSets();
+                updateDisplay();
+            }
+        }
+
+        // Startet die Anzeige direkt beim Laden der Seite
+        updateDisplay();
+    </script>
+</body>
+</html>
