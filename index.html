@@ -3,15 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <!-- Eindeutige Version zur Cache-Kontrolle -->
-    <title>Tennis Zähler v1.4.0</title>
+    <title>Tennis Zähler v1.4.1</title>
     <style>
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
             font-family: Arial, sans-serif;
-            /* Verhindert blaue Markierungen beim Tippen */
             -webkit-tap-highlight-color: transparent;
         }
 
@@ -37,6 +35,20 @@
             text-transform: uppercase;
         }
 
+        /* NEU: Fehler-Konsole direkt auf dem Bildschirm */
+        .debug-console {
+            background-color: #7f1d1d;
+            color: #fca5a5;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-family: monospace;
+            font-size: 0.85rem;
+            text-align: left;
+            border: 2px solid #ef4444;
+            display: none; /* Wird nur bei Fehlern sichtbar */
+        }
+
         .card {
             background-color: #1e293b;
             border-radius: 12px;
@@ -54,7 +66,6 @@
             font-weight: bold;
         }
 
-        /* Modus-Auswahl */
         .mode-switch {
             display: flex;
             gap: 10px;
@@ -78,7 +89,6 @@
             border-color: #f59e0b;
         }
 
-        /* Anzeigetafel */
         .grid {
             display: grid;
             grid-template-columns: 2fr 1fr 1fr 1fr;
@@ -114,7 +124,6 @@
             border-color: #f59e0b;
         }
 
-        /* Große Klick-Buttons */
         .btn-container {
             display: flex;
             gap: 15px;
@@ -136,7 +145,6 @@
         .btn-gruen { background-color: #388e3c; }
         .btn-score:active { opacity: 0.7; }
 
-        /* Systemknöpfe */
         .footer-controls {
             display: flex;
             justify-content: space-between;
@@ -169,6 +177,9 @@
     <div class="container">
         <h1>Scoreboard Pro</h1>
 
+        <!-- Fehleranzeige (Standardmäßig unsichtbar) -->
+        <div id="error-log" class="debug-console"></div>
+
         <!-- Auswahl Gewinnsätze -->
         <div class="card">
             <div class="title">Match-Modus</div>
@@ -186,13 +197,11 @@
                 <div class="grid-header">Spiele</div>
                 <div class="grid-header">Punkt</div>
 
-                <!-- Reihe Team Rot -->
                 <div class="team-name" style="color: #ef4444;">Team Rot</div>
                 <div id="p1-sets" class="score-box">0</div>
                 <div id="p1-games" class="score-box">0</div>
                 <div id="p1-points" class="score-box points">0</div>
 
-                <!-- Reihe Team Grün -->
                 <div class="team-name" style="color: #10b981;">Team Grün</div>
                 <div id="p2-sets" class="score-box">0</div>
                 <div id="p2-games" class="score-box">0</div>
@@ -200,7 +209,7 @@
             </div>
         </div>
 
-        <!-- Große Zählbuttons -->
+        <!-- Zählbuttons -->
         <div class="btn-container">
             <button class="btn-score btn-rot" onclick="pointWonBy(1)">+ Team Rot</button>
             <button class="btn-score btn-gruen" onclick="pointWonBy(2)">+ Team Grün</button>
@@ -212,10 +221,18 @@
             <button class="btn-control" onclick="resetMatch()">Reset</button>
         </div>
         
-        <div class="version-tag">VERSION: v1.4.0</div>
+        <div class="version-tag">VERSION: v1.4.1</div>
     </div>
 
     <script>
+        // Globaler Error-Catcher fängt Fehler sofort ab und zeigt sie an
+        window.onerror = function(msg, url, line) {
+            const log = document.getElementById("error-log");
+            log.style.display = "block";
+            log.innerText = "FEHLER: " + msg + "\nZeile: " + line;
+            return false;
+        };
+
         let p1 = { points: 0, games: 0, sets: 0 };
         let p2 = { points: 0, games: 0, sets: 0 };
         let history = [];
@@ -226,65 +243,51 @@
         const pointValues = ["0", "15", "30", "40", "Vorteil"];
 
         function setTargetSets(sets) {
-            if (modeLocked) return;
-            
-            targetSets = sets;
-            
-            const btn2 = document.getElementById("mode-2");
-            const btn3 = document.getElementById("mode-3");
-            
-            if (sets === 2) {
-                btn2.className = "btn-mode active";
-                btn3.className = "btn-mode";
-            } else {
-                btn2.className = "btn-mode";
-                btn3.className = "btn-mode active";
+            try {
+                if (modeLocked) return;
+                targetSets = sets;
+                
+                document.getElementById("mode-2").className = (sets === 2) ? "btn-mode active" : "btn-mode";
+                document.getElementById("mode-3").className = (sets === 3) ? "btn-mode active" : "btn-mode";
+            } catch(err) {
+                window.onerror(err.message, "", "setTargetSets");
             }
         }
 
-        // Steuerung über Lautstärketasten
-        window.addEventListener('keydown', function(event) {
-            if (matchOver) return;
-            if (event.key === "+" || event.key === "VolumeUp" || event.key === "ArrowUp") {
-                event.preventDefault();
-                pointWonBy(1);
-            } else if (event.key === "-" || event.key === "VolumeDown" || event.key === "ArrowDown") {
-                event.preventDefault();
-                pointWonBy(2);
-            }
-        });
-
         function pointWonBy(player) {
-            if (matchOver) return;
+            try {
+                if (matchOver) return;
 
-            // Auswahl einfrieren
-            modeLocked = true;
-            document.getElementById("mode-2").style.opacity = "0.3";
-            document.getElementById("mode-3").style.opacity = "0.3";
+                modeLocked = true;
+                document.getElementById("mode-2").style.opacity = "0.3";
+                document.getElementById("mode-3").style.opacity = "0.3";
 
-            history.push({
-                p1: { points: p1.points, games: p1.games, sets: p1.sets },
-                p2: { points: p2.points, games: p2.games, sets: p2.sets },
-                modeLocked: modeLocked
-            });
+                history.push({
+                    p1: { points: p1.points, games: p1.games, sets: p1.sets },
+                    p2: { points: p2.points, games: p2.games, sets: p2.sets },
+                    modeLocked: modeLocked
+                });
 
-            let server = (player === 1) ? p1 : p2;
-            let receiver = (player === 1) ? p2 : p1;
+                let server = (player === 1) ? p1 : p2;
+                let receiver = (player === 1) ? p2 : p1;
 
-            if (server.points < 3) {
-                server.points++;
-            } else if (server.points === 3 && receiver.points < 3) {
-                winGame(player);
-                return;
-            } else if (server.points === 3 && receiver.points === 3) {
-                server.points = 4; // Vorteil
-            } else if (server.points === 3 && receiver.points === 4) {
-                receiver.points = 3; // Einstand
-            } else if (server.points === 4) {
-                winGame(player);
-                return;
+                if (server.points < 3) {
+                    server.points++;
+                } else if (server.points === 3 && receiver.points < 3) {
+                    winGame(player);
+                    return;
+                } else if (server.points === 3 && receiver.points === 3) {
+                    server.points = 4; 
+                } else if (server.points === 3 && receiver.points === 4) {
+                    receiver.points = 3; 
+                } else if (server.points === 4) {
+                    winGame(player);
+                    return;
+                }
+                updateDisplay();
+            } catch(err) {
+                window.onerror(err.message, "", "pointWonBy");
             }
-            updateDisplay();
         }
 
         function winGame(player) {
@@ -322,8 +325,3 @@
         }
 
         function undoLastPoint() {
-            if (history.length === 0) return;
-            const lastState = history.pop();
-            p1 = lastState.p1;
-            p2 = lastState.p2;
-            modeLocked = lastState.modeLocked;
